@@ -4,10 +4,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from '@expo/vector-icons';
 
 import TabNavigation from './components/TabNavigator';
-import RootNavigator from './screens/Root';
 import MyEventNavigator from "./components/MyEventNavigator";
 
-//import home from './screens/Home';
+import Home from './screens/Home';
 
 const Tab = createBottomTabNavigator();
 
@@ -41,7 +40,7 @@ export default function App() {
           tabBarInactiveTintColor: 'black',  
         })}
       >
-        <Tab.Screen name="Home" component={RootNavigator} />
+        <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="My Event" component={MyEventNavigator} />
         <Tab.Screen name="Tabs" component={TabNavigation} />
       </Tab.Navigator>

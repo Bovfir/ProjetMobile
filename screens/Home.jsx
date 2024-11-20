@@ -1,47 +1,41 @@
 import { StyleSheet, Text, View } from 'react-native';
-import * as Font from 'expo-font';
-import { useEffect, useState } from 'react';
 
-
-export default function home(){
-    const [fontLoaded, setFonsLoaded] = useState(false);
-
-    useEffect(() => {
-        async function loadFonts() {
-            await Font.loadAsync({
-                'BrunoAceSC': require('./assets/fonts/BrunoAceSC-Regular.ttf'),
-            });
-            setFonsLoaded(true);
-        }
-        loadFonts();
-    }, []);
-
-    if(!fontLoaded){
-        return null;
-    }
-
+export default function Home(){
 
     return(
         <>
         <View style={style.container}>
-            <Text style={style.title}>EventFlow</Text>
+            <View style={style.textBox}>
+                <Text style={style.title}>EventFlow</Text>
+                <Text style={style.slogan}>Where event come to life</Text>
+            </View>
         </View>
         </>
     )
 }
-
 
 const style = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'FFFFFF',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 30
+    },
+    textBox: {
+        width: '70%',
+        alignItems: 'center',
+        padding: 10,
+        backgroundColor: 'transparent',
     },
     title: {
-      fontSize: 24,
-      color: '4B0082',
-      fontWeight: 'Regular',
-      fontFamily: 'BrunoAceSC,'
+      fontSize: 30,
+      color: '#4B0082',
+      fontFamily: 'BrunoAceSC'
+    },
+    slogan: {
+        fontSize: 12,
+        color: 'black',
+        fontFamily: 'BrunoAceSC',
     },
 }); 
