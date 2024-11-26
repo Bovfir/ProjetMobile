@@ -1,15 +1,36 @@
-import { StyleSheet } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons,Feather } from '@expo/vector-icons'; // npm install react-native-vector-icons
 
 import TabNavigation from './components/TabNavigator';
-import RootNavigator from './screens/Root';
 import MyEventNavigator from "./components/MyEventNavigator";
-
-//import home from './screens/Home';
+import Home from './screens/Home';
+import Explore from './screens/Explore';
 
 const Tab = createBottomTabNavigator();
+
+const ICON_MAP = {
+  Home: {
+    component: Ionicons,
+    focused: "home",
+    unfocused: "home-outline",
+  },
+  "Profile": {
+    component: Feather,
+    focused: "user",
+    unfocused: "user",
+  },
+  "My Event": {
+    component: MaterialCommunityIcons,
+    focused: "calendar-month",
+    unfocused: "calendar-month-outline",
+  },
+  "Explore": {
+    component: Ionicons,
+    focused: "compass",
+    unfocused:"compass-outline",
+  }
+};
 
 export default function App() {
   return (
@@ -19,41 +40,23 @@ export default function App() {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-            switch (route.name) {
-              case 'Home':
-                iconName = focused ? 'home' : 'home-outline';
-                break;
-              case 'Tabs':
-                iconName = focused ? 'settings' : 'settings-outline';
-                break;
-              case 'My Event':
-                iconName = focused ? 'calendar' : 'calendar-outline';
-                break;
-              default:
-                iconName = 'help-circle-outline';
-            }
-            
-            // Retourne l'icône avec le nom correspondant
-            return <Ionicons name={iconName} size={size} color={color} />;
+            const iconData = ICON_MAP[route.name];
+            if(!iconData) return null;
+
+            const IconComponent = iconData.component;
+            const iconName = focused ? iconData.focused : iconData.unfocused;
+
+            return <IconComponent name={iconName} size={size} color={color}/>;
           },
-          tabBarActiveTintColor: '#4B0082', 
-          tabBarInactiveTintColor: 'black',  
+          tabBarActiveTintColor: '#4B0082',
+          tabBarInactiveTintColor: 'black',
         })}
       >
-        <Tab.Screen name="Home" component={RootNavigator} />
+        <Tab.Screen name="Home" component={Home} />
+        <Tab.Screen name="Explore" component={Explore}/>
         <Tab.Screen name="My Event" component={MyEventNavigator} />
-        <Tab.Screen name="Tabs" component={TabNavigation} />
+        <Tab.Screen name="Profile" component={TabNavigation} />
       </Tab.Navigator>
     </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+};
