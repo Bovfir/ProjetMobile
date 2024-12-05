@@ -3,11 +3,11 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from '@expo/vector-icons';
 
-import TabNavigation from './components/TabNavigator';
-import RootNavigator from './screens/Root';
-import MyEventNavigator from "./components/MyEventNavigator";
 
-//import home from './screens/Home';
+import ConnexionNavigation from './components/ConnectionNavigator'
+import ExploreNavigation from "./components/ExploreNavigator";
+import ProfileNavigator from './components/ProfileNavigator';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -41,19 +41,11 @@ export default function App() {
           tabBarInactiveTintColor: 'black',  
         })}
       >
-        <Tab.Screen name="Home" component={RootNavigator} />
-        <Tab.Screen name="My Event" component={MyEventNavigator} />
-        <Tab.Screen name="Tabs" component={TabNavigation} />
-      </Tab.Navigator>
+        <Tab.Screen name="Home" component={ConnexionNavigation} />
+        <Tab.Screen name="Explore" component={ExploreNavigation}/>
+        <Tab.Screen name="My Event" component={ExploreNavigation} />
+        <Tab.Screen name="Profile" component={ProfileNavigator} />
+      </Tab.Navigator> 
     </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+};
