@@ -6,6 +6,7 @@ import TabNavigation from './components/TabNavigator';
 import MyEventNavigator from "./components/MyEventNavigator";
 import Home from './screens/Home';
 import Explore from './screens/Explore';
+import Messages from './screens/Messages';
 
 const Tab = createBottomTabNavigator();
 
@@ -54,7 +55,7 @@ export default function App() {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Explore" component={Explore}/>
-        <Tab.Screen name="My Event" component={MyEventNavigator} />
+        <Tab.Screen name="My Event" component={Messages} />
         <Tab.Screen name="Profile" component={TabNavigation} />
       </Tab.Navigator>
     </NavigationContainer>

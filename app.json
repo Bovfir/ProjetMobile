@@ -23,6 +23,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "VITE_URL_API": "http://192.168.0.242:3001/",
+      "VITE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3RhdHVzIjoiYWRtaW4iLCJpYXQiOjE3MzI5MTgyNzksImV4cCI6MTczMjk0NzA3OX0.0g1s7cCTqZEjhT5OvmbV6GG77Qn79sz6BdtrrSc5mKc"
     }
   }
 }
+
