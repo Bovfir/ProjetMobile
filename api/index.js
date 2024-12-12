@@ -90,6 +90,7 @@ export const loadNewerMessages = async (discussionID, previousMessageID) => {
         return (data.map((message) => ({
             id: message.messageid,
             content: message.messagecontent,
+            type: message.messageType,
             sendingDate: message.sendingdate,
             sender: {
                 id: message.userid,
@@ -106,7 +107,7 @@ export const sendMessage = async (discussionID, message) => {
     try {
         const data = {
             content: message.content,
-            gps: 1,  // TODO: get gps
+            type: 0,
             user_id: message.sender.id,
             discussion_event_id: discussionID
         }

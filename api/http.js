@@ -2,8 +2,8 @@ import axios from 'axios';
 //import Constants from 'expo-constants';
 
 const { VITE_URL_API, VITE_TOKEN } = {
-    VITE_URL_API: "http://172.1.0.66:3001/",
-    VITE_TOKEN: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3RhdHVzIjoiYWRtaW4iLCJpYXQiOjE3MzMyMTQ4ODIsImV4cCI6MTczMzI0MzY4Mn0.B2DdLRcJMwM96xxnz-Eko6ky6GhEkeyoXGPLiHjl7pY"
+    VITE_URL_API: "http://10.101.40.27:3001/",
+    VITE_TOKEN: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3RhdHVzIjoiYWRtaW4iLCJpYXQiOjE3MzQwMTAwNjQsImV4cCI6MTczNDAzODg2NH0.JHEZ3XHNMaJUa0wURmRfb7lcp6UEOQFqa7rbrmuQZos"
 };
 
 export const getCurrentUser = async () => {
@@ -16,7 +16,7 @@ export const getCurrentUser = async () => {
 };
 
 export const getDiscussionsFromEventID = async (eventID) => {
-    const rep = await axios.get(VITE_URL_API + "eventManagement/discussionEvent/" + eventID, {
+    const rep = await axios.get(VITE_URL_API + "event/" + eventID + "/discussions/", {
         headers: {
             Authorization: `Bearer ${VITE_TOKEN}`,
         }
