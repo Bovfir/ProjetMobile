@@ -1,9 +1,12 @@
 import {loadDiscussions} from '../api/index';
 import Discussion from './DiscussionInformation'
 import {useEffect, useState} from "react";
-import {View, Text, StyleSheet} from "react-native";
+import {View, Text, StyleSheet, TouchableOpacity} from "react-native";
+import DiscussionHeader from "./DiscussionHeader";
+import {useNavigation} from "@react-navigation/native";
 
-export default function TopicsDisplay({eventID}) {
+export default function TopicsDisplay({eventID, currentUser}) {
+    const navigation = useNavigation();
     const [discussions, setDiscussions] = useState([]);
     const [load, setLoad] = useState({
         loaded: false,
@@ -47,7 +50,9 @@ export default function TopicsDisplay({eventID}) {
         Content = <Text>{load.errorMessage}</Text>;
     } else if(discussions.length !== 0){
         Content = discussions.map((discussion) => (
-            <Discussion key={discussion.id} discussion={discussion} />
+            <TouchableOpacity key={discussion.id} onPress={() => navigation.navigate('DiscussionChat', { currentUser, discussionID: discussion.id, discussionTitle: discussion.title })}>
+                <Discussion key={discussion.id} discussion={discussion} />
+            </TouchableOpacity>
         ));
     } else {
         Content = <Text>No discussions</Text>;
@@ -55,22 +60,33 @@ export default function TopicsDisplay({eventID}) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Topics</Text>
-            {Content}
+            <DiscussionHeader title={"Topics"} />
+            <View style={styles.titleWrapper}>
+                <Text style={styles.title}>Topics</Text>
+            </View>
+            <View style={styles.content}>
+                {Content}
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
+    titleWrapper: {
+        margin: 15,
     },
     title: {
+        color: 'black',
         fontSize: 24,
+        fontFamily: 'Inter',
         fontWeight: 'bold',
-        color: '#333',
+        wordWrap: 'break-word',
     },
+    container: {
+        height: '100%',
+    },
+    content: {
+        flex: 1,
+        alignItems: 'center',
+    }
 });

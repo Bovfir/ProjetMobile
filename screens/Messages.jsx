@@ -1,7 +1,9 @@
 import {ActivityIndicator, StyleSheet, Text, View, SafeAreaView} from 'react-native';
-import DiscussionMessages from "../components/DiscussionMessages";
+import DiscussionChat from "../components/DiscussionChat";
 import {useEffect, useState} from "react";
 import {loadCurrentUser} from "../api";
+import DiscussionHeader from "../components/DiscussionHeader";
+import TopicsDisplay from "../components/TopicsDisplay";
 
 export default function Messages() {
     const [currentUser, setCurrentUser] = useState({});
@@ -40,7 +42,7 @@ export default function Messages() {
         content = <Text>Error: {load.errorMessage}</Text>;
     } else if (currentUser.id) {
         content = (
-            <DiscussionMessages currentUser={currentUser} discussionID={1} />
+            <TopicsDisplay eventID={1} currentUser={currentUser}/>
         );
     } else {
         content = <Text>Could not load user data</Text>;
@@ -49,7 +51,6 @@ export default function Messages() {
     return (
         <SafeAreaView style={styles.safeContainer}>
             <View style={styles.container}>
-                <Text style={styles.title}>Messages</Text>
                 {content}
             </View>
         </SafeAreaView>

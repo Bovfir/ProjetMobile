@@ -7,7 +7,7 @@ export const Message = ({ sender, content, isCurrentUser }) => {
         <View style={[styles.messageWrapper, isCurrentUser && styles.currentUserWrapper]}>
             {/* Avatar */}
             <Avatar.Image
-                size={46}
+                size={40}
                 source={require('../assets/johnDoe.jpg')}
                 style={[styles.avatar, isCurrentUser && styles.currentUserAvatar]}
             />
@@ -16,7 +16,9 @@ export const Message = ({ sender, content, isCurrentUser }) => {
             <View style={styles.messageContainer}>
                 <View style={[styles.bubble, isCurrentUser && styles.currentUserBubble]}>
                     <Text style={styles.sender}>{sender}</Text>
-                    <Text style={styles.content}>{content}</Text>
+                    <View style={styles.contentWrapper}>
+                        <Text style={styles.content}>{content}</Text>
+                    </View>
                 </View>
             </View>
         </View>
@@ -34,10 +36,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row-reverse',
     },
     avatar: {
-        marginHorizontal: 10,
+        marginLeft: 10,
+        marginRight: 0,
     },
     currentUserAvatar: {
-        marginHorizontal: 10,
+        marginLeft: 0,
+        marginRight: 10,
     },
     messageContainer: {
         flex: 1,
@@ -49,6 +53,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         paddingVertical: 8,
         paddingHorizontal: 15,
+        marginRight: 80,
 
         // iOS Shadow
         ...Platform.select({
@@ -65,17 +70,22 @@ const styles = StyleSheet.create({
     },
     currentUserBubble: {
         backgroundColor: '#a37dbf', // Current user's bubble color
+        marginRight: 0,
+        marginLeft: 80,
     },
     sender: {
-        fontSize: 14,
+        fontSize: 15,
         fontFamily: 'Inter',
         fontWeight: 'bold',
         color: 'black',
         marginBottom: 2,
         wordWrap: 'break-word',
     },
+    contentWrapper: {
+        marginLeft: 5,
+    },
     content: {
-        fontSize: 14,
+        fontSize: 15,
         fontFamily: 'Inter',
         fontWeight: '400',
         color: 'black',

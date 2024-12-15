@@ -3,44 +3,36 @@ import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import { Message } from "./Message";
 import MessageInput from "./MessageInput";
+import DiscussionHeader from "./DiscussionHeader";
+import { useRoute } from '@react-navigation/native';
 
-export default function DiscussionMessages({ currentUser, discussionID, currentUser: { id: currentUserID, user_name: currentUserName } }) {
+export default function DiscussionChat() {
+    const route = useRoute();
+    const { currentUser, discussionID, discussionTitle } = route.params;
+
     const [messages, setMessages] = useState([]);
-    const [load, setLoad] = useState({
-        loading: false,
-        error: false,
-        errorMessage: ''
-    });
+    const [loadingInitial, setLoadingInitial] = useState(false);
     const [initialLoad, setInitialLoad] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [loadingNew, setLoadingNew] = useState(false);
+    const [loadingError, setLoadingError] = useState({ error: false, errorMessage: '' });
     const [reachedEnd, setReachedEnd] = useState(false);
 
     function fetchInitialMessages() {
-        setLoad({
-            loading: true,
-            error: false,
-            errorMessage: ''
-        });
+        setLoadingInitial(true);
 
         loadDiscussionMessages(discussionID, 0).then(result => {
             setMessages(result);
-            setLoad({
-                loading: false,
-                error: false,
-                errorMessage: ''
-            });
+            setLoadingInitial(false);
         }).catch(error => {
-            setLoad({
-                loading: false,
-                error: true,
-                errorMessage: error.message
-            });
+            setLoadingInitial(false);
+            setLoadingError({ error: true, errorMessage: error.message });
         });
     }
 
     // Load more messages when scrolling to the top
     function loadMoreMessages(){
-        if (loadingMore || load.loading || reachedEnd) return;
+        if (loadingMore || loadingInitial || reachedEnd) return;
 
         setLoadingMore(true);
         loadOlderMessages(discussionID, messages[messages.length - 1].id).then(result => {
@@ -58,13 +50,13 @@ export default function DiscussionMessages({ currentUser, discussionID, currentU
     }
 
     function loadNewMessages() {
-        if (loadingMore || load.loading || !messages[0]?.id) return;
-        setLoadingMore(true);
+        if (loadingNew || loadingInitial || !messages[0]?.id) return;
+        setLoadingNew(true);
         loadNewerMessages(discussionID, messages[0].id).then(result => {
             setMessages((prevMessages) => [...result, ...prevMessages]);
-            setLoadingMore(false);
+            setLoadingNew(false);
         }).catch(error => {
-            setLoadingMore(false);
+            setLoadingNew(false);
         });
     }
 
@@ -79,10 +71,15 @@ export default function DiscussionMessages({ currentUser, discussionID, currentU
     }, [messages]);
 
     let Content;
-    if (load.loading) {
+    if (loadingInitial) {
         Content = <ActivityIndicator size="large" color="#6200EE" />;
-    } else if (load.error) {
-        Content = <Text>{load.errorMessage}</Text>;
+    } else if (loadingError.error) {
+        // Content = <Text>{loadingError.errorMessage}</Text>; -> center it
+        Content = (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>{loadingError.errorMessage}</Text>
+            </View>
+        );
     } else if (messages.length > 0) {
         Content = (
             <FlatList
@@ -92,7 +89,7 @@ export default function DiscussionMessages({ currentUser, discussionID, currentU
                     <Message
                         sender={item.sender.username}
                         content={item.content}
-                        isCurrentUser={item.sender.id === currentUserID}
+                        isCurrentUser={item.sender.id === currentUser.id}
                     />
                 )}
                 contentContainerStyle={styles.listContainer}
@@ -102,11 +99,16 @@ export default function DiscussionMessages({ currentUser, discussionID, currentU
             />
         );
     } else {
-        Content = <Text>No messages yet.</Text>;
+        Content =  (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <Text>No messages yet.</Text>
+            </View>
+        );
     }
 
     return (
         <View style={styles.container}>
+            <DiscussionHeader title={discussionTitle} />
             {Content}
             <MessageInput
                 currentUser={currentUser}
@@ -119,13 +121,10 @@ export default function DiscussionMessages({ currentUser, discussionID, currentU
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#fff',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
         width: '100%',
-    },
-    listContainer: {
-        flexGrow: 1, // Ensures the list stretches to fill the available vertical space
-        width: '100%', // Makes the list take the full width of the screen
-        paddingHorizontal: 10,
-    },
+        height: '100%',
+    }
 });
