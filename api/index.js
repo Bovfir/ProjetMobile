@@ -1,9 +1,15 @@
 import {
+    getCategory,
     getCurrentUser,
     getDiscussionsFromEventID,
     getDiscussionsMessages,
+    getEvent,
+    getLocation,
+    getNbSubscribers,
     getNewerMessages,
-    getOlderMessages, postMessage
+    getOlderMessages,
+    getUser,
+    postMessage
 } from './http.js';
 
 export const loadCurrentUser = async () => {
@@ -113,6 +119,36 @@ export const sendMessage = async (discussionID, message) => {
         }
         const rep = await postMessage(data);
         return rep.data;
+    } catch (e) {
+        //throw new Error('Un problème est survenu, réessayez plus tard');
+        throw new Error(e);
+    }
+}
+
+export const loadEvent = async (eventID) => {
+    try {
+        const eventData = await getEvent(eventID);
+        const [userData, locationData, categoryData, nbSubscribers] = await Promise.all([
+            getUser(eventData.user_id),
+            getLocation(eventData.location_id),
+            getCategory(eventData.category_id),
+            getNbSubscribers(eventID)
+        ]);
+
+        return {
+            id: eventData.id,
+            title: eventData.title,
+            description: eventData.description,
+            startTime: eventData.event_start,
+            endTime: eventData.event_end,
+            streetNumber: eventData.street_number,
+            isPrivate: eventData.isprivate,
+            picturePath: eventData.picture_path,
+            ownerName: userData.user_name,
+            locationName: locationData.label,
+            category: categoryData.title,
+            nbSubscribers: nbSubscribers.count
+        };
     } catch (e) {
         //throw new Error('Un problème est survenu, réessayez plus tard');
         throw new Error(e);

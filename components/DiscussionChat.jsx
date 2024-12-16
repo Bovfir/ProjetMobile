@@ -92,7 +92,6 @@ export default function DiscussionChat() {
                         isCurrentUser={item.sender.id === currentUser.id}
                     />
                 )}
-                contentContainerStyle={styles.listContainer}
                 inverted // Invert the FlatList to load from the bottom up
                 onEndReached={loadMoreMessages} // Trigger load when scrolling to the top (since it's inverted)
                 ListFooterComponent={loadingMore && <ActivityIndicator size="small" color="#6200EE" />}

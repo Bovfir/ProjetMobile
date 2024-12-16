@@ -3,10 +3,9 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, MaterialCommunityIcons,Feather } from '@expo/vector-icons'; // npm install react-native-vector-icons
 
 import TabNavigation from './components/TabNavigator';
-import MyEventNavigator from "./components/MyEventNavigator";
 import Home from './screens/Home';
 import Explore from './screens/Explore';
-import Messages from './screens/Messages';
+import DiscussionNavigator from './components/DiscussionNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -55,7 +54,7 @@ export default function App() {
       >
         <Tab.Screen name="Home" component={Home} />
         <Tab.Screen name="Explore" component={Explore}/>
-        <Tab.Screen name="My Event" component={Messages} />
+        <Tab.Screen name="My Event" component={DiscussionNavigator} />
         <Tab.Screen name="Profile" component={TabNavigation} />
       </Tab.Navigator>
     </NavigationContainer>

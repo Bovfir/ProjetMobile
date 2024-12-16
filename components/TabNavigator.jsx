@@ -7,7 +7,7 @@ import B from '../screens/B';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 const Stack = createNativeStackNavigator();
 
-export default function TabNavigator (){
+export default function DiscussionNavigator (){
   return (
     <Stack.Navigator
       initialRouteName="A"
