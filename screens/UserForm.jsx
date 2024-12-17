@@ -4,10 +4,25 @@ import { TextInput, HelperText } from 'react-native-paper';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Header } from '../components/Header';
+import * as APIConnection from '../API/getApi';
+import { useNavigation } from '@react-navigation/native';
 
 
-export default function UserForm(){
+export default function UserForm({route}){
+    const { registration, data } = route.params || {};
+    const navigation = useNavigation()
 
+    const handleValueForm = async (values) =>{
+        console.log(values);
+        
+        if(registration){
+            await APIConnection.createUser(values);
+            navigation.navigate('Connection');
+        }else{
+            await APIConnection.patchUser(values);
+            navigation.navigate('Profile');
+        }
+    }
     return(
         <View style={styles.container}>
             <Header title={'Form'} backButton={true}/>
@@ -26,16 +41,21 @@ export default function UserForm(){
                 vertical={true}
                 showsVerticalScrollIndicator={false}>
                 <Formik
-                    initialValues={{email:"ced.denoncinc", password:"sdfghjkl",lastName:"qsdfghj", firstName:"qsdfgh", pseudo:"dfgh", bio:"ghfdsqqcxedszfzef"}}
+                    initialValues={registration 
+                        ? { email: "", password: "", last_name: "", first_name: "", user_name: "", bio: "" } 
+                        : { ...data }
+                      }
                     validationSchema={Yup.object({
                         email:Yup.string().email('Invalid email').required('Required'),
-                        password: Yup.string().min(6, 'Must be at least 6 character').required('Required'),
-                        lastName: Yup.string().max(25, 'Must be max 25 character'),
-                        firstName: Yup.string().max(25, 'Must be max 25 character'),
-                        pseudo: Yup.string().max(10, 'Must be max 10 character').required('Required'),
+                        password: registration 
+                        ? Yup.string().min(6, 'Must be at least 6 characters').required('Required')
+                        : Yup.string().min(6, 'Must be at least 6 characters'), 
+                        last_name: Yup.string().max(25, 'Must be max 25 character'),
+                        first_name: Yup.string().max(25, 'Must be max 25 character'),
+                        user_name: Yup.string().max(10, 'Must be max 10 character').required('Required'),
                         bio: Yup.string().max(100, 'Must be max 100 character' )
                     })}
-                    onSubmit={(values) => console.log(values)}
+                    onSubmit={(values) => handleValueForm(values)}
                     >
                     {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                         <View style={styles.form}>
@@ -73,14 +93,14 @@ export default function UserForm(){
                             <TextInput
                                 label='Pseudo'
                                 placeholder="Pseudo"
-                                onChangeText={handleChange('pseudo')}
-                                onBlur={handleBlur('pseudo')}
-                                value={values.pseudo}
-                                error={touched.pseudo && errors.pseudo}
+                                onChangeText={handleChange('user_name')}
+                                onBlur={handleBlur('user_name')}
+                                value={values.user_name}
+                                error={touched.user_name && errors.user_name}
                                 />
                             <HelperText
                                 type="error"
-                                visible={touched.pseudo && errors.pseudo}
+                                visible={touched.user_name && errors.user_name}
                             >
                             {errors.pseudo}
                             </HelperText>
@@ -88,14 +108,14 @@ export default function UserForm(){
                             <TextInput
                                 label="Last name"
                                 placeholder="Enter user name"
-                                value={values.lastName}
-                                error={touched.lastName && errors.lastName}
-                                onChangeText={handleChange('lastName')}
-                                onBlur={handleBlur('lastName')}
+                                value={values.last_name}
+                                error={touched.last_name && errors.last_name}
+                                onChangeText={handleChange('last_name')}
+                                onBlur={handleBlur('last_name')}
                             />
                             <HelperText
                                 type="error"
-                                visible={touched.lastName && errors.lastName}
+                                visible={touched.last_name && errors.last_name}
                             >
                             {errors.lastName}
                             </HelperText>
@@ -103,14 +123,14 @@ export default function UserForm(){
                             <TextInput
                                 label='First name'
                                 placeholder='Enter your last name'
-                                value ={values.firstName}
-                                error={touched.firstName && errors.firstName}
-                                onChangeText={handleChange('firstName')}
-                                onBlur={handleBlur('firstName')}
+                                value ={values.first_name}
+                                error={touched.first_name && errors.first_name}
+                                onChangeText={handleChange('first_name')}
+                                onBlur={handleBlur('first_name')}
                             />
                             <HelperText
                                 type="error"
-                                visible={touched.firstName && errors.firstName}
+                                visible={touched.first_name && errors.first_name}
                             >
                             {errors.firstName}
                             </HelperText>

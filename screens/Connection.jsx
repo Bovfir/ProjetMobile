@@ -7,67 +7,23 @@ import { Formik } from 'formik';
 import {styles} from "../styles/stylesLogin"
 import { Text } from "react-native";
 import { useNavigation } from '@react-navigation/native';
-import axios from 'axios'
 import Toast from 'react-native-toast-message';
-import * as Keychain from 'react-native-keychain';
+import * as APIConnection from '../API/getApi';
+
+
 
 export default function Connection(){
     const navigation = useNavigation()
 
     const handleSubmit = async (data) =>{
-
-        console.log(data)
-        try{
-            const response = await axios.post('http://192.168.185.200:3001/user/login', data, {
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-              });
-              if(response){
-                storeJWT(response);
-                retrieveJWT();
-              {/* navigation.navigate('Profile')*/}
-              }
-          
-              console.log('Token', response.data);
-        }catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Erreur d\'authentification',
-                text2: 'Nom d\'utilisateur ou mot de passe incorrect.',
-              });
-          }
+        const response = await APIConnection.login(data);
+        console.log(response);
+        if(response === 'ok'){
+            navigation.navigate('Profile',{registration: true})
+        }else{
+            console.log(response);
+        }
     }
-
-
-
-
-    // Stocker un JWT
-    const storeJWT = async (token) => {
-        try {
-        await Keychain.setGenericPassword('jwt', token);
-        console.log('Token saved');
-        } catch (error) {
-        console.error('Error saving token', error);
-        }
-    };
-    
-    // Récupérer un JWT
-    const retrieveJWT = async () => {
-        try {
-        const credentials = await Keychain.getGenericPassword();
-        if (credentials) {
-            console.log('JWT retrieved:', credentials.password);
-        } else {
-            console.log('No JWT found');
-        }
-        } catch (error) {
-        console.error('Error retrieving token', error);
-        }
-    };
-    
-
-    
 
 
     return (
