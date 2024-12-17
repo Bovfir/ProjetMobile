@@ -4,6 +4,6 @@ import EventPresentation from "../components/EventPresentation";
 
 export default function Explore() {
     return (
-        <EventPresentation eventID={1} />
+        <EventPresentation eventID={8} />
     );
 }

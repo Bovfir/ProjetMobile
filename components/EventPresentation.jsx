@@ -4,6 +4,46 @@ import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useNavigation} from "@react-navigation/native";
 
+function formatDateToReadable(dateString) {
+    const date = new Date(dateString);
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day} ${month} ${year}`;
+}
+
+function formatTimeRange(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const formatTime = (date) => {
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        return `${formattedHours}.${formattedMinutes} ${period}`;
+    };
+
+    const startTime = formatTime(start);
+    const endTime = formatTime(end);
+
+    const isDifferentDay = start.toDateString() !== end.toDateString();
+
+    if (isDifferentDay) {
+        const readableEndDate = formatDateToReadable(endDate);
+        return `${startTime} - ${endTime} (${readableEndDate})`;
+    }
+
+    return `${startTime} - ${endTime}`;
+}
+
 export default function EventPresentation({eventID}) {
     const navigation = useNavigation();
 
@@ -62,6 +102,9 @@ export default function EventPresentation({eventID}) {
 
                 <View style={styles.frameContainer}>
                     <Text>Picture</Text>
+                    <View style={styles.categoryWrapper}>
+                        <Text style={styles.category}>{eventData.category}</Text>
+                    </View>
                 </View>
 
                 <View style={styles.eventNameWrapper}>
@@ -77,19 +120,35 @@ export default function EventPresentation({eventID}) {
                 <View style={styles.frameContainer}>
                     <View style={styles.infoTable}>
                         <View style={styles.column}>
-                            <View style={styles.locationWrapper}>
-                                <Text style={styles.location}>{eventData.locationName}, {eventData.streetNumber}</Text>
+                            {/*location*/}
+                            <View style={styles.infoCell}>
+                                <Ionicons name={"location-outline"} size={19} color={"#000"}/>
+                                <View style={styles.infoLabelWrapper}>
+                                    <Text style={styles.infoLabel}>{eventData.locationName}, {eventData.streetNumber}</Text>
+                                </View>
                             </View>
-                            <View style={styles.hourWrapper}>
-                                <Text style={styles.hour}>{eventData.startTime}</Text>
+                            {/*hour*/}
+                            <View style={styles.infoCell}>
+                                <Ionicons name={"time-outline"} size={19} color={"#000"}/>
+                                <View style={styles.infoLabelWrapper}>
+                                    <Text style={styles.infoLabel}>{formatTimeRange(eventData.startTime, eventData.endTime)}</Text>
+                                </View>
                             </View>
-                            <View style={styles.dateWrapper}>
-                                <Text style={styles.date}>{eventData.endTime}</Text>
+                            {/*date*/}
+                            <View style={styles.infoCell}>
+                                <Ionicons name={"calendar-outline"} size={19} color={"#000"}/>
+                                <View style={styles.infoLabelWrapper}>
+                                    <Text style={styles.infoLabel}>{formatDateToReadable(eventData.endTime)}</Text>
+                                </View>
                             </View>
                         </View>
                         <View style={styles.column}>
-                            <View style={styles.participantWrapper}>
-                                <Text style={styles.participant}>{eventData.nbSubscribers}</Text>
+                            {/*participant count*/}
+                            <View style={styles.infoCell}>
+                                <Ionicons name={"people-outline"} size={19} color={"#000"}/>
+                                <View style={styles.infoLabelWrapper}>
+                                    <Text style={styles.infoLabel}>{eventData.nbSubscribers}</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -129,6 +188,21 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         marginTop: 40,
     },
+    categoryWrapper: {
+        backgroundColor: '#D9D9D9',
+        borderColor: '#000',
+        borderWidth: 1,
+        borderRadius: 99,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        marginVertical: 5,
+        alignSelf: 'flex-start',
+    },
+    category: {
+        fontSize: 11,
+        fontWeight: '400',
+        color: 'black'
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -156,7 +230,6 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         borderWidth: 1,
         borderColor: '#C497E5',
-        overflow: 'hidden',
         elevation: 3,
         padding: 10,
     },
@@ -196,42 +269,18 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'space-between',
     },
-    locationWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 5,
+    infoLabelWrapper: {
+        marginLeft: 5,
     },
-    location: {
-        fontSize: 14,
-        color: '#555',
-        fontWeight: '600',
+    infoLabel: {
+        fontSize: 12,
+        fontFamily: 'inter',
+        fontWeight: 400,
     },
-    hourWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    hour: {
-        fontSize: 14,
-        color: '#888',
-    },
-    dateWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    date: {
-        fontSize: 14,
-        color: '#888',
-    },
-    participantWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    participant: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#555',
+    infoCell: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: 2,
     },
     eventDescriptionWrapper: {
         width: '100%',

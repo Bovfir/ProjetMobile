@@ -2,8 +2,8 @@ import axios from 'axios';
 //import Constants from 'expo-constants';
 
 const { VITE_URL_API, VITE_TOKEN } = {
-    VITE_URL_API: "http://172.1.2.178:3001/",
-    VITE_TOKEN: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3RhdHVzIjoiYWRtaW4iLCJpYXQiOjE3MzQzNTE0ODUsImV4cCI6MTczNDM4MDI4NX0.IyY9ggr0VKhVgWXYPOih5RkLLFUrA9J9t7W1Xb0gvqU"
+    VITE_URL_API: "http://10.101.40.14:3001/",
+    VITE_TOKEN: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwic3RhdHVzIjoiYWRtaW4iLCJpYXQiOjE3MzQ0Mjg2ODQsImV4cCI6MTczNDQ1NzQ4NH0.2T51BPX0tcq7Wcz_vWHqsVoqyCr9JmxgRncb8cjykeY"
 };
 
 export const getCurrentUser = async () => {
@@ -61,7 +61,7 @@ export const postMessage = async (message) => {
 };
 
 export const getEvent = async (eventID) => {
-    const rep = await axios.get(VITE_URL_API + "eventManagement/" + eventID, {
+    const rep = await axios.get(VITE_URL_API + "event/id/" + eventID, {
         headers: {
             Authorization: `Bearer ${VITE_TOKEN}`,
         }
