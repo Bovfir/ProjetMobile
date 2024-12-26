@@ -47,6 +47,25 @@ const styles = StyleSheet.create({
       },
       messageTitle:{
         color:'#4B0082'
+      },
+      segmentedButton:{
+        margin:'5%',
+      },
+      flatListContainer:{
+        margin:'5%'
+      },
+
+
+
+
+      buttonBox:{
+        flexDirection:'row',
+        justifyContent:'center',
+      },
+      button:{
+        marginRight:5
       }
+
+
 })
 export default styles;

@@ -19,7 +19,7 @@ export default function Connection(){
         const response = await APIConnection.login(data);
         console.log(response);
         if(response === 'ok'){
-            navigation.navigate('Profile',{registration: true})
+            navigation.replace('ProfileNav')
         }else{
             console.log(response);
         }
@@ -78,7 +78,7 @@ export default function Connection(){
                                 <LoginButton onPress={handleSubmit}/>
                             </View>
                             <View style={styles.button} >
-                                <RegisterButton onPress={()=> navigation.navigate('UserForm')}/>
+                                <RegisterButton onPress={()=> navigation.navigate('UserForm', {registration: true})}/>
                             </View>
                     </View> 
             )}

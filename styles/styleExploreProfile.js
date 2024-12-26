@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
     input: {
         flex:6,
         padding:5,
+        marginLeft:10
       },
     searchBarView:{
         height:40,
@@ -79,6 +80,17 @@ const styles = StyleSheet.create({
         margin:'5%',
         justifyContent: 'center',
         alignItems:'center',
+        position: 'relative',
+    },
+    optionBox:{
+        position: 'absolute',
+        width:30,
+        aspectRatio:1,
+        top: 10,
+        left: 10,
+    },
+    optionIcon:{
+        fontSize:30
     },
     boxImage:{
         flex:1,
@@ -226,7 +238,8 @@ const styles = StyleSheet.create({
       modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        textAlign:'center'
+        textAlign:'center',
+        marginBottom:16
       },
       closeModalButton: {
         marginTop: 20,
@@ -257,6 +270,17 @@ const styles = StyleSheet.create({
       },
       checkBox:{
         color:'red'
-      }
+      },
+      noMore:{
+        textAlign:'center',
+        color: '#4B0082',
+        margin:5
+      },
+
+      modalButton:{
+        margin:4,
+        borderColor:'red',
+        borderWidth:1,
+      },
   });
   export default styles;

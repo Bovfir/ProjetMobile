@@ -12,15 +12,13 @@ export default function UserForm({route}){
     const { registration, data } = route.params || {};
     const navigation = useNavigation()
 
-    const handleValueForm = async (values) =>{
-        console.log(values);
-        
+    const handleValueForm = async (values) =>{       
         if(registration){
             await APIConnection.createUser(values);
             navigation.navigate('Connection');
         }else{
             await APIConnection.patchUser(values);
-            navigation.navigate('Profile');
+            navigation.navigate('ProfileNav');
         }
     }
     return(

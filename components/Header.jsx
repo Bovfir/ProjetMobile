@@ -22,7 +22,7 @@ export  function Header({title, subTitle, backButton, notificationButton, titleS
 }
 const styles = StyleSheet.create({
     title: {
-        fontSize: 30,
+        fontSize: 32,
         color: '#4B0082',
         fontFamily: 'BrunoAceSC',
         textAlign:'center',

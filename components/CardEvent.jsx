@@ -1,11 +1,23 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { MaterialIcons, SimpleLineIcons, Feather } from '@expo/vector-icons';
+import * as APIConnection from '../API/getApi';
+import { useState, useEffect } from "react";
 
 export function CardEvent({ card, isSelected, toggleSelection, style}) {
+        const [uri, setUri] = useState(null);
+    
+        const getURI = async()=>{
+            const uri = await APIConnection.getURI(card.picture_path)
+            setUri(uri)
+        }
+    
+        useEffect(()=>{
+            getURI();
+        },[])
     return (
         <Card key={card.id} style={style.cardStyle}>
-            <Card.Cover source={{ uri: card.image }} style={style.cardCover} />
+            <Card.Cover source={{ uri: uri }} style={style.cardCover} />
             <Card style={style.iconCardLeft}>
                 <MaterialIcons name="music-note" size={18} color="#FFFFFF" />
             </Card>

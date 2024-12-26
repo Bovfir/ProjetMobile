@@ -4,11 +4,10 @@ import { useNavigation } from '@react-navigation/native';
 import {Ionicons, FontAwesome5} from'@expo/vector-icons';
 import {useFonts} from 'expo-font'
 import axios from 'axios'
-import styles from '../styles/styles'
+import styles from '../styles/styleExploreProfile'
 import { Header } from '../components/Header';
 import {CardEvent} from '../components/CardEvent';
 import { styleCard } from '../styles/stylesCard';
-import {Asset} from 'expo-asset';
 import { Checkbox } from 'react-native-paper';
 import * as APIConnection from '../API/getApi';
 
@@ -19,41 +18,64 @@ export default function Explore() {
     const [slideAnim] = useState(new Animated.Value(300));
     const [data, setData] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [search, setSearch] = useState("");
+    const [nbRows, setNbRows] = useState(6);
+    const [page, setPage] = useState(1);
+    const [noMore, setNoMore] = useState(false);
+    const [reset, setReset] = useState(false);
+    const perPage = 5;
 
 
+    useEffect(() => {
+      fetchDataPaging()
+    }, []);
 
-{/*-------------------temporaire--------------------- */}
-    const MAXELEM = 3;
-    const [imageUri, setImageUri] = useState(null);
+    useEffect(() => {
+      if (reset) {
+        fetchDataPaging();
+        setReset(false);
+      }
+    }, [reset]);
 
-  useEffect(() => {
-    const loadAsset = async () => {
-      const asset = Asset.fromModule(require('../assets/test.jpg'));
-      await asset.downloadAsync(); // Précharge l'image
-      setImageUri(asset.uri); // Met à jour l'état avec l'URI de l'image
-    };
-    loadAsset();
-    fetchData();
-  }, []);
-
-    const fetchData = async () => {
-        try{
-            const events = await APIConnection.getEvent(1);
-            const categoriesList = await APIConnection.getCategories();
-            setData(events);
-            setCategories(categoriesList);
-        }catch(error){
-          console.log("Error:")
-          console.log(error)
-        }
+    const resetPaging = () => {
+      setPage(1);
+      setData([]);
+      setNbRows(6);
+      setReset(true);
     }
-    {/*---------------------------------------- */}
+
+    const handleSearch = () =>{
+      resetPaging();
+    }
+
+    const getNbTotalPage = () => {
+      return Math.ceil(nbRows/perPage)
+    }
+
+    const fetchDataPaging = async ()=>{
+      if(page <= getNbTotalPage()){
+      const response = await APIConnection.getDataBySearchAndCategories(page,selectedFilters,search);
+      const categoriesList = await APIConnection.getCategories();
+      setCategories(categoriesList);
+      setData((data) =>{
+        const updatedData = [...data, ...response.events];
+        return updatedData;
+      });
+      setNbRows(response.nbRows);
+      setPage((page) => page + 1);
+      }else{
+        setNoMore(true);
+      }
+    }
+
 
     const toggleFilter = (category) => {
         if (selectedFilters.includes(category)) {
           setSelectedFilters(selectedFilters.filter((item) => item !== category));
+          resetPaging();
         } else {
           setSelectedFilters([...selectedFilters, category]);
+          resetPaging();
         }
       };
       const openModal = () => {
@@ -79,41 +101,22 @@ export default function Explore() {
         }
       };
   
-      const filteredData = data.filter((item) => {
-        const matchesFilter = selectedFilters.length > 0
-          ? selectedFilters.includes(item.category_id)
-          : true;
-        return matchesFilter;
-      });
-      
     const [fontsLoaded] = useFonts({
         'BrunoAceSC': require('../assets/fonts/BrunoAceSC-Regular.ttf')
     })
-
-    if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
-    }
-  
-    async function getSearch(e){
-        try{
-            const response = await APIConnection.searchEvent({search: e.nativeEvent.text,page :1})
-            setData(response)
-        }catch(err){
-            console.log(err);
-        }
-    }
-
     return (
             <View style={styles.container}>
 {/*-------------------------Header----------------------*/}
-          <Header title={'Explore'} notificationButton={true} backButton={true}/>
+          <Header title={'Explore'} subTitle={'Where event come to live'} notificationButton={true}/>
 {/*-------------------------Search Bar--------------------*/}
             <View style={styles.headerSearchBarMargin}>
                 <View style={styles.searchBarView}>
                     <TextInput
                         style={styles.input}
                         placeholder="Recherche événement"
-                        onSubmitEditing={getSearch}
+                        onChangeText={text => setSearch(text)}
+                        onSubmitEditing={handleSearch}
+                        value={search}
                     />
                     <TouchableOpacity style={styles.searchBarButton}>
                         <Ionicons name="filter" style={styles.iconStyle} onPress={openModal}/>
@@ -121,12 +124,14 @@ export default function Explore() {
                 </View>
             </View>
 {/*-------------------------Simulation liste d'event---------------*/}
-      {filteredData?.length > 0 ? (
+      {data?.length > 0 ? (
         <FlatList
-          showsVerticalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.flatListBox}
-            data={filteredData}
-            keyExtractor={(item) => item.id}
+            data={data}
+            keyExtractor={(item,index) => item.id || index}
+            onEndReached={fetchDataPaging}
+            onEndReachedThreshold={0.5}
             renderItem={({ item }) => (
               <CardEvent
                 key={item.id}

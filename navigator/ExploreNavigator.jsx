@@ -1,21 +1,22 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import Connection from '../screens/Connection'
+import Explore from '../screens/Explore'
 import UserForm from "../screens/UserForm";
 import Notifications from "../screens/Notifications";
-import Profile from '../screens/Profile';
+import Connection from "../screens/Connection";
 
 const Stack = createNativeStackNavigator();
 
-export default function ConnexionNavigation(){
+export default function ExploreNavigation(){
     return(
         <Stack.Navigator
         screenOptions={{
             headerShown: false,
           }}>
-            <Stack.Screen name="Connection" component={Connection}/>
+            <Stack.Screen name="ExploreHome" component={Explore}/>
             <Stack.Screen name="UserForm" component={UserForm}/>
-            <Stack.Screen name='Profile' component={Profile}/>
+            <Stack.Screen name="Notifications" component={Notifications}/>
+            <Stack.Screen name="Connection" component={Connection}/>
         </Stack.Navigator>
     )
 }
