@@ -32,7 +32,7 @@ export default function FormEvent() {
     const {categories, loading} = useSelector((state) => state.event);
     
     const route = useRoute();
-    const {event,eventID} = route.params || {};
+    const {event,eventID, eventUpdated} = route.params || {};
 
     const navigation = useNavigation();
 
@@ -114,7 +114,6 @@ export default function FormEvent() {
         };
 
         if (isUpdate) {
-            console.log(updatedData)
             dispatch(updateEvent(updatedData,emailList));
             showToast('success', 'Event updated successfully', 'Your event has been updated.');
         } else {
@@ -122,7 +121,7 @@ export default function FormEvent() {
             showToast('success', 'Event created successfully', 'Your event is now available.');
         }
 
-        navigation.goBack();
+        navigation.navigate('FormEvent',{eventUpdated: true});
     };
     
     const handleAddEmail = () => {

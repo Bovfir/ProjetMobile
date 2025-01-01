@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {Text, View, TextInput,TouchableOpacity,Animated, FlatList, TouchableWithoutFeedback, Image} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import {Ionicons} from'@expo/vector-icons';
@@ -14,21 +14,19 @@ export default function Explore() {
     const [selectedFilters, setSelectedFilters] = useState([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [slideAnim] = useState(new Animated.Value(300));
-    const [data, setData] = useState([]);
     const [nbSubscribed,setNbSubscribed] = useState({});    
     const [ratio, setRatio] = useState({});
-    const [categories, setCategories] = useState([]);
-    const [search, setSearch] = useState("");
-    const [nbRows, setNbRows] = useState(6);
-    const [page, setPage] = useState(1);
+    const [refreshing, setRefreshing] = useState(false);
+    const [search,setSearch] = useState("");
+    const categories = useRef([]);
+
+    const nbRows = useRef(6);
+    const page = useRef(1);
+    const data = useRef([]);
+
     const [noMore, setNoMore] = useState(false);
     const [reset, setReset] = useState(false);
     const perPage = 5;
-
-
-    useEffect(() => {
-      fetchDataPaging()
-    }, []);
 
     useEffect(() => {
       if (reset) {
@@ -37,11 +35,16 @@ export default function Explore() {
       }
     }, [reset]);
 
+    useEffect(()=>{
+      if(!modalVisible){
+        fetchDataPaging();
+      }
+    }, [modalVisible])
 
     const resetPaging = () => {
-      setPage(1);
-      setData([]);
-      setNbRows(6);
+      page.current = 1;
+      data.current = [];
+      nbRows.current = 6;
       setReset(true);
     }
 
@@ -50,29 +53,25 @@ export default function Explore() {
     }
 
     const getNbTotalPage = () => {
-      return Math.ceil(nbRows/perPage)
+      return Math.ceil(nbRows.current/perPage)
     }
 
     const fetchDataPaging = async ()=>{
-      if(page <= getNbTotalPage()){
-      const response = await APIConnection.getDataBySearchAndCategories(page,selectedFilters,search);
+      if(page.current <= getNbTotalPage()){
+      const response = await APIConnection.getDataBySearchAndCategories(page.current,selectedFilters,search);
       const categoriesList = await APIConnection.getAllCategories();
+      categories.current = categoriesList
+      data.current = [...data.current, ...response.events];
 
-      
-      setCategories(categoriesList);
-      setData((data) =>{
-        const updatedData = [...data, ...response.events];
-        return updatedData;
-      });
-      setNbRows(response.nbRows);
-      setPage((page) => page + 1);
+      nbRows.current = response.nbRows;
+      page.current += 1;
 
-      const nbSubscribedForEachEventForYouPromises = data.map(async (item) => {
+      const nbSubscribedForEachEventForYouPromises = data.current.map(async (item) => {
           const response = await APIConnection.getNbSubscribers(item.id);
           return {id: item.id, subscribers: Number(response.count)}; 
       });
 
-      const ratioUpComingEventsPromises = data.map(async (item) => {
+      const ratioUpComingEventsPromises = data.current.map(async (item) => {
           const response = await APIConnection.ratioEvent(item.id);
           return {id: item.id, ratio : response};
       });
@@ -88,34 +87,45 @@ export default function Explore() {
     const toggleFilter = (category) => {
         if (selectedFilters.includes(category)) {
           setSelectedFilters(selectedFilters.filter((item) => item !== category));
-          resetPaging();
         } else {
           setSelectedFilters([...selectedFilters, category]);
-          resetPaging();
         }
       };
-      const openModal = () => {
-        setModalVisible(true);
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      };
-    
-      const closeModal = () => {
-        Animated.timing(slideAnim, {
-          toValue: 300,
-          duration: 300,
-          useNativeDriver: true,
-        }).start(() => setModalVisible(false));
-      };
+    const openModal = () => {
+      setModalVisible(true);
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    };
+  
+    const closeModal = () => {
+      Animated.timing(slideAnim, {
+        toValue: 300,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => closeModalManager());
+    };
 
-      const handleOutsideClick = (e) => {
-        if (e.target === e.currentTarget) {
-          closeModal();
-        }
-      };
+    const closeModalManager = () => {
+      page.current = 1;
+      data.current = [];
+      nbRows.current = 6;
+      setModalVisible(false);
+    }
+
+    const handleOutsideClick = (e) => {
+      if (e.target === e.currentTarget) {
+        closeModal();
+      }
+    };
+
+    const handleRefresh = () => {
+      setRefreshing(true);
+      resetPaging()
+      setRefreshing(false);
+    };
       
     return (
             <View style={stylesExplore.container}>
@@ -137,12 +147,14 @@ export default function Explore() {
                 </View>
             </View>
             {/*-------------------------Simulation liste d'event---------------*/}
-            {data?.length > 0 ? (
+            {data.current?.length > 0 ? (
             <FlatList
               showsVerticalScrollIndicator={false}
               contentContainerStyle={stylesExplore.flatListBox}
-              data={data}
+              refreshing={refreshing}
+              data={data.current}
               keyExtractor={(item, index) => item.id || index}
+              onRefresh={handleRefresh}
               onEndReached={fetchDataPaging}
               onEndReachedThreshold={0.5}
               renderItem={({ item,index }) => {
@@ -176,7 +188,7 @@ export default function Explore() {
             <View style={stylesExplore.modalContainer}>
               <Text style={stylesExplore.modalTitle}>Sélectionner les catégories</Text>
               <View style={stylesExplore.modalOptionBox}>
-              {categories.map((category) => (
+              {categories.current.map((category) => (
                 <View key={category.id} style={stylesExplore.modalOption}>
                   <Text style={stylesExplore.modalOptionText}>{category.title}</Text>
                   <Checkbox

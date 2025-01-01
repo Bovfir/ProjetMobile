@@ -55,19 +55,38 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
         }
     };
 
-    const handleAddEmail = () => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (emailRegex.test(emailInput)) {
-            if (!emailList.includes(emailInput.toLowerCase())) {
-                setEmailList([...emailList, emailInput.toLowerCase()]);
-                setEmailInput('');
+    const handleAddEmail = async () => {
+        try {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(emailInput)) {
+                const exist = await checkInvitation({ email: emailInput.toLowerCase(), event_id: event.id });
+    
+                if (exist) {
+                    showToast('error', 'Email Exists', 'This email is already linked to the event.');
+                } else if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
             } else {
-                showToast('error', 'Duplicate Email', 'This email has already been added.');
+                showToast('error', 'Invalid Email', 'The email format is incorrect.');
             }
-        } else {
-            showToast('error', 'Invalid Email', 'The email format is incorrect.');
+        } catch (error) {
+            if (error.status === 404) {
+                if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');  
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
+            } else {
+                showToast('error', 'Error', 'An error occurred while checking the email.');
+            }
         }
     };
+    
 
     const handleRemoveEmail = (email) => {
         setEmailList(emailList.filter((e) => e !== email));

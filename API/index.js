@@ -82,7 +82,7 @@ export const patchUser = async(values)=>{
 export const deleteAccount = async()=>{
     try {
         const token = await getToken();
-        const response =await axios.delete(`${URL}/user/delete/currentUser/`,{
+        await axios.delete(`${URL}/user/delete/currentUser/`,{
             headers:{
                 'Authorization': `Bearer ${token}`,
             },
@@ -199,11 +199,7 @@ export const getDataBySearchAndCategories = async(page,categories, search)=>{
             headers:{
                 'Authorization': `Bearer ${token}`,
             },
-            params: {
-                page: page,
-                perPage: perPage,
-                search: search,
-            }
+            params: params
         })
         return response.data
     } catch (error) {
@@ -411,11 +407,12 @@ export const createInvitation = async (data) => {
 export const checkInvitation = async (data) => {
     try {
         const token = await getToken();
-        await axios.post(`${URL}/search/check/Invitation/exist/`,data,{
+        const response = await axios.post(`${URL}/linkUserEvent/check/Invitation/exist/`,data,{
             headers: {
                 'Authorization' : `Bearer ${token}`
             }
         });  
+        return response.data;
     } catch (error) {
         throw error;
     }
@@ -451,6 +448,19 @@ export const getDiscussionsFromEventID = async (eventID) => {
         throw new Error('Unable to fetch discussions from even.');
     }
 };
+
+export const createDiscussion = async (data) => {
+    try {
+        const token = await getToken();
+        await axios.post(`${URL}/discussionEvent/new/discussion/`, data,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }  
+        });
+    } catch (error) {
+        throw error;
+    }
+}
 
 export const getDiscussionsMessages = async (discussionID, offset) => {
     try {

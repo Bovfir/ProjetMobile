@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { style, stylesButton } from '../../styles/stylesMyEvent';
 import { Card } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import CardEventWithOptions from '../../components/CardEventWithOptions';
 import SearchBar from '../../components/SearchBar';
 import EventTypeSelector from '../../components/EventTypeSelector';
@@ -18,6 +18,7 @@ export default function MyEvent2() {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [selectedTypeEvent, setSelectedTypeEvent] = useState('created');
+  const route = useRoute();
 
   const fetchData = async () => {
       setLoading(true);
@@ -29,6 +30,18 @@ export default function MyEvent2() {
   useEffect(() => {
     onRefresh();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      if (route.params?.eventUpdated) {
+        onRefresh();
+        navigation.setParams({ eventUpdated: false }); 
+      }
+    });
+  
+    return unsubscribe;
+  }, [navigation, route.params?.eventUpdated]);
+  
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -85,7 +98,7 @@ export default function MyEvent2() {
           )}
         </View>
       </ScrollView>
-      <Card style={style.buttonAddEvent} onPress={() => navigation.navigate('FormEvent')}>
+      <Card style={style.buttonAddEvent} onPress={() => navigation.navigate('FormEvent', { eventUpdated: false })}>
         <AntDesign name="plus" color={"white"} size={30} />
       </Card>
     </View>
