@@ -1,0 +1,296 @@
+import React, { useState, useEffect } from 'react';
+import { Text, View, ScrollView, Pressable, RefreshControl, Image } from 'react-native';
+import { MaterialIcons, AntDesign } from '@expo/vector-icons';
+import { styleFormEvent } from '../../styles/stylesFormEvent';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import PublicPrivateSelector from '../../components/PublicPrivateSelector';
+import CreateEventButton from '../../components/CreateEventButton';
+import TitleFormField from '../../components/TitleFormField';
+import CardCategoryForm from '../../components/CardCategoryForm';
+import DateTimeSelector from '../../components/DateTimeSelector';
+import TextInputForm from '../../components/TextInputForm';
+import PickImage from '../../utils/PickImage';
+import { Header } from '../../components/Header';
+import InvitationInput from '../../components/InvitationInput';
+import HelperTextField from "../../components/HelperTextField";
+import { showToast } from '../../utils/utils';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { URLImage } from '../../API/APIUrl';
+import EventImageSelector from '../../components/EventImageSelector';
+import { formatDate } from '../../utils/utils';
+import { getAllCategories as APIGetCategories, addEvent as APIAddEvent, uploadImage as APIUploadImage, checkEmails, createInvitation,updateEvent } from '../../API/index';
+
+export default function FormEvent() {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [emailInput, setEmailInput] = useState('');
+    const [emailList, setEmailList] = useState([]);
+    const [showDescriptionInput, setShowDescriptionInput] = useState(false);
+    
+    const route = useRoute();
+    const {event,eventID} = route.params || {};
+
+    const navigation = useNavigation();
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchData();
+        setRefreshing(false);
+    };
+
+    const fetchData = async () => {
+        setLoading(true);
+        const categories = await APIGetCategories();
+        setCategories(categories);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        onRefresh();
+    }, []);
+
+    useEffect(() => {
+        if (categories.length > 0) {
+            if(event) {
+                setSelectedCategory(event.category_id);
+            } else {
+                setSelectedCategory(categories[0].id);
+            }
+        }
+    }, [categories]);
+
+    const validationSchema = Yup.object().shape({
+        image: Yup.mixed().required('Event image is required'),
+        nameEvent: Yup.string().required('Event name is required'),
+        location: Yup.string().required('Event location is required'),
+        description: Yup.string(),
+        eventStart: Yup.date().required('Start date is required'),
+        eventEnd: Yup.date().required('End date is required'),
+    });
+
+    const formikInitialValues = {
+        image: event ? event.picture_path : null,  
+        nameEvent: event ? event.title : '',  
+        location: event ? event.street_number : '',  
+        description: event ? event.description : '',  
+        eventStart: event ? new Date(event.event_start) : new Date(),  
+        eventEnd: event ? new Date(event.event_end) : new Date(),  
+        timeStart: event ? new Date(event.event_start) : new Date(),  
+        timeEnd: event ? new Date(event.event_end) : new Date(),  
+        selectedType: event ? event.is_private : false,  
+    };
+
+    
+
+    const createEvent = async (values) => {
+        try {
+            const isUpdate = event && event.id; 
+            let updatedData = {};
+    
+            const fieldsToCompare = [
+                { key: 'nameEvent', field: 'title' },
+                { key: 'description', field: 'description' },
+                { key: 'location', field: 'street_number' },
+                { key: 'selectedType', field: 'is_private' },
+                { key: 'eventStart', field: 'event_start', transform: (val) => formatDate(val) },
+                { key: 'eventEnd', field: 'event_end', transform: (val) => formatDate(val) },
+            ];
+
+            fieldsToCompare.forEach(({ key, field, transform }) => {
+                const newValue = values[key];
+                const oldValue = event ? event[field] : null;
+                const transformedValue = transform ? transform(newValue) : newValue;
+    
+                if (newValue !== oldValue) {
+                    updatedData[field] = transformedValue;
+                }
+            });
+
+            if (selectedImage && selectedImage !== event?.picture_path) {
+                updatedData.picture_path = await APIUploadImage({ imageUri: selectedImage });
+            }
+    
+            updatedData = {
+                ...updatedData,
+                category_id: selectedCategory,
+                location_id: 1, 
+                id: eventID
+            };
+            
+    
+            if (Object.keys(updatedData).length > 0) {
+                let eventCreated;
+    
+                if (isUpdate) {
+                    await updateEvent(updatedData);
+                    showToast('success', 'Event updated successfully', 'Your event has been updated.');
+                } else {
+                    eventCreated = await APIAddEvent(updatedData);
+                    showToast('success', 'Event created successfully', 'Your event is now available.');
+                }
+
+                if (emailList.length > 0) {
+                    const response = await checkEmails({ emails: emailList });
+                    await createInvitation({ ids: response.idEmailExist, event_id: eventCreated.id });
+                }
+    
+                navigation.goBack(); 
+            } else {
+                showToast('info', 'No changes detected', 'No updates were made to the event.');
+            }
+        } catch (error) {
+            showToast('error', 'Error creating/updating event', error.message || 'Something went wrong.');
+        }
+    };
+    
+    const handleAddEmail = () => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailRegex.test(emailInput)) {
+            if (!emailList.includes(emailInput.toLocaleLowerCase())) {
+                setEmailList([...emailList, emailInput.toLocaleLowerCase()]);
+                setEmailInput('');
+            } else {
+                showToast('error','Error : Email already added.','This email has already been added.')
+            }
+        } else {
+            showToast('error','Error : Invalid email.','The email format is incorrect.')
+        }
+    };
+
+    const handleRemoveEmail = (email) => {
+        setEmailList(emailList.filter((e) => e !== email));
+    };
+
+    return (
+        <Formik
+            initialValues={formikInitialValues}
+            validationSchema={validationSchema}
+            onSubmit={(values) => createEvent(values)}
+        >
+            {({
+                handleChange,
+                handleBlur,
+                handleSubmit,
+                values,
+                errors,
+                touched,
+                setFieldValue,
+            }) => (
+                <View style={{ flex: 1, backgroundColor: 'white' }}>
+                    <Header title="Event Form" notificationButton={true} navigation={navigation} backButton={true} />
+                    <ScrollView
+                        showsVerticalScrollIndicator={true}
+                        style={{ flex: 1 }}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
+                    >
+                        <View style={styleFormEvent.viewCreateText}>
+                            <Text style={styleFormEvent.createEvent}>Create Event</Text>
+                        </View>
+                        <EventImageSelector 
+                            event={event}
+                            selectedImage={selectedImage}
+                            setSelectedImage={setSelectedImage}
+                            setFieldValue={setFieldValue}
+                            styles={styleFormEvent}
+                        />
+
+                        <HelperTextField touched={touched} errors={errors} fieldName={"image"} style={styleFormEvent.helpText}/>
+
+                        <TitleFormField title="Event name" styles={styleFormEvent} />
+                        <TextInputForm
+                            value={values.nameEvent}
+                            placeholder="Enter your event name..."
+                            onChangeText={handleChange('nameEvent')}
+                            onBlur={handleBlur('nameEvent')}
+                            styles={styleFormEvent}
+                        />
+                        <HelperTextField touched={touched} errors={errors} fieldName={"nameEvent"} style={styleFormEvent.helpText}/>
+
+                        <View style={styleFormEvent.viewDescription}>
+                            <Pressable onPress={() => setShowDescriptionInput(!showDescriptionInput)}>
+                                <View style={styleFormEvent.row}>
+                                    {showDescriptionInput ? (
+                                        <>
+                                            <AntDesign name="minus" size={16} color="#4B0082" />
+                                            <Text style={styleFormEvent.addDescription}>Remove Description</Text>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <AntDesign name="plus" size={16} color="#4B0082" />
+                                            <Text style={styleFormEvent.addDescription}>Add Description</Text>
+                                        </>
+                                    )}
+                                </View>
+                            </Pressable>
+                            {showDescriptionInput && (
+                                <View style={styleFormEvent.textInputContainerDescription}>
+                                    <TextInputForm
+                                        placeholder="Enter a description..."
+                                        onChangeText={handleChange('description')}
+                                        onBlur={handleBlur('description')}
+                                        value={values.description}
+                                        styles={styleFormEvent}
+                                        multiline={true}
+                                    />
+                                </View>
+                            )}
+                        </View>
+
+                        <DateTimeSelector
+                            eventStart={values.eventStart}
+                            eventEnd={values.eventEnd}
+                            timeStart={values.timeStart}
+                            timeEnd={values.timeEnd}
+                            onChangeEventStart={(date) => setFieldValue('eventStart', date)}
+                            onChangeEventEnd={(date) => setFieldValue('eventEnd', date)}
+                            onChangeTimeStart={(time) => setFieldValue('timeStart', time)}
+                            onChangeTimeEnd={(time) => setFieldValue('timeEnd', time)}
+                        />
+
+                        <TitleFormField title="Location" styles={styleFormEvent} />
+                        <TextInputForm
+                            value={values.location}
+                            placeholder="Enter your event location..."
+                            onChangeText={handleChange('location')}
+                            onBlur={handleBlur('location')}
+                            type={'location'}
+                            styles={styleFormEvent}
+                        />
+
+                        <HelperTextField touched={touched} errors={errors} fieldName={"location"} style={styleFormEvent.helpText}/>
+
+                        <TitleFormField title="Category" styles={styleFormEvent} />
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styleFormEvent.scrollCategories} contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 10 }}>
+                            {categories.map((category) => (
+                                <CardCategoryForm
+                                    key={category.id}
+                                    category={category}
+                                    selectedCategory={selectedCategory}
+                                    setSelectedCategory={setSelectedCategory}
+                                    styles={styleFormEvent}
+                                />
+                            ))}
+                        </ScrollView>
+
+                        <TitleFormField title="Type" styles={styleFormEvent} />
+                        <PublicPrivateSelector
+                            selectedType={values.selectedType}
+                            onSelectedType={(type) => setFieldValue('selectedType', type)}
+                            styles={styleFormEvent}
+                        />
+
+                        {values.selectedType && (
+                            <InvitationInput emailList={emailList} emailInput={emailInput} setEmailInput={setEmailInput} handleAddEmail={handleAddEmail} handleRemoveEmail={handleRemoveEmail} styles={styleFormEvent}/>
+                        )}
+
+                        <CreateEventButton onPress={handleSubmit} styles={styleFormEvent} />
+                    </ScrollView>
+                </View>
+            )}
+        </Formik>
+    );
+}

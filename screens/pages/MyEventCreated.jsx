@@ -1,0 +1,93 @@
+import { View, ScrollView, RefreshControl, Image } from 'react-native';
+import { useEffect, useState } from 'react';
+import { AntDesign } from '@expo/vector-icons';
+import { style, stylesButton } from '../../styles/stylesMyEvent';
+import { Card } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import CardEventWithOptions from '../../components/CardEventWithOptions';
+import SearchBar from '../../components/SearchBar';
+import EventTypeSelector from '../../components/EventTypeSelector';
+import { Header } from '../../components/Header';
+import { getEventCreatedOfUser as APIGetEventCreatedOfUser } from '../../API/index';
+import {URL} from "../../API/APIUrl";
+
+export default function MyEvent2() {
+  const [text, setText] = useState('');
+  const [eventsAPI, setEventsAPI] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
+  const [selectedTypeEvent, setSelectedTypeEvent] = useState('created');
+
+  const fetchData = async () => {
+      setLoading(true);
+      const eventsCreated = await APIGetEventCreatedOfUser();
+      setEventsAPI(eventsCreated);
+      setLoading(false);
+  };
+
+  useEffect(() => {
+    onRefresh();
+  }, []);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <Header title={"My Events"} notificationButton={true} navigation={navigation} />
+      <ScrollView
+        showsVerticalScrollIndicator={true}
+        style={{ flex: 1 }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />
+        }
+      >
+        <View style={style.container}>
+          
+          <SearchBar
+            text={text}
+            setText={setText}
+            placeholder="Search your created events..."
+            onSearch={(searchText) => alert(`${searchText}`)}
+            style={style}
+          />
+          
+          <EventTypeSelector
+            stylesButton={stylesButton}
+            selectedType={selectedTypeEvent}
+            onSubscribedPress={() => {
+              setSelectedTypeEvent('subscribed');
+              navigation.navigate('MyEventSubscribed');
+            }}
+            onCreatedPress={() => {
+              setSelectedTypeEvent('created');
+            }}
+          />
+
+          {eventsAPI.length === 0 ? (
+              <Image source={require('../../assets/images/utils/NothingFound.png')} style={{width: 300, height: 300, marginTop: 50 }} />
+          ) : (
+            eventsAPI.map((event, index) => (
+              <CardEventWithOptions 
+                key={event.id}
+                event={event}
+                imageUri={`${URL}/${event.picture_path}`}
+                style={style}
+                type={selectedTypeEvent}
+                titleButton={"Update"}
+                index={index}
+              />
+            ))
+          )}
+        </View>
+      </ScrollView>
+      <Card style={style.buttonAddEvent} onPress={() => navigation.navigate('FormEvent')}>
+        <AntDesign name="plus" color={"white"} size={30} />
+      </Card>
+    </View>
+  );
+};
