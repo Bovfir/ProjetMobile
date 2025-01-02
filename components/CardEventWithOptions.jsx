@@ -11,7 +11,7 @@ import { showToast } from '../utils/utils';
 import { stylesButtonInvitation } from "../styles/stylesButtonInvitation";
 import { createInvitation,checkEmails,checkInvitation } from '../API/index';
 
-export default function CardEventWithOptions({ event, titleButton, style, type, onRefresh, index }) {
+export default function CardEventWithOptions({ event, titleButton, style, type, onRefresh, index, fetchData }) {
     const navigation = useNavigation();
     const IconComponent = IconComponents[event.icon_component_name] || IconComponents.MaterialIcons;
     const [modalVisible, setModalVisible] = useState(false);
@@ -40,18 +40,22 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
     };
 
     const sendInvitations = async () => {
-        let response;
-        if (emailList.length > 0) {
-            response = await checkEmails({ emails: emailList });
-            
-            if(response){
-                await createInvitation({ ids: response.idEmailExist, event_id: event.id});
+        try {
+            let response;
+            if (emailList.length > 0) {
+                response = await checkEmails({ emails: emailList });
+                
+                if(response){
+                    await createInvitation({ ids: response.idEmailExist, event_id: event.id});
+                }
+                showToast('success', 'Invitations Sent', `Invitations sent to: ${emailList.join(', ')}`);
+                setEmailList([]);
+                setModalVisible(false);
+            } else {
+                showToast('error', 'Error', 'No emails to send invitations to.');
             }
-            showToast('success', 'Invitations Sent', `Invitations sent to: ${emailList.join(', ')}`);
-            setEmailList([]);
-            setModalVisible(false);
-        } else {
-            showToast('error', 'Error', 'No emails to send invitations to.');
+        } catch (error) {
+            showToast('error', 'Sending Error', 'An error occurred while sending invitations.');
         }
     };
 
@@ -103,9 +107,14 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
                 },
                 {
                     text: 'Confirm',
-                    onPress: () => {
-                        deleteEvent(id);
-                        showToast('success', 'Event Deleted', 'Your event has been successfully deleted.');
+                    onPress: async () => {
+                        try {
+                            await deleteEvent(id);
+                            showToast('success', 'Event Deleted', 'Your event has been successfully deleted.');
+                            fetchData();
+                        } catch (error) {
+                            showToast('error', 'Deletion Error', 'An error occurred while deleting the event.');
+                        }
                     },
                 },
             ],

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, TextInput, TouchableOpacity, Text} from "react-native";
 import { postMessage as APIPostMessage} from "../API/index";
 import { stylesMessageInput } from "../styles/stylesMessageInput";
+import { showToast } from "../utils/utils";
 
 export default function MessageInput({ currentUser, discussionID, is_writable,eventcreatorusername }) {
     const [messageContent, setMessageContent] = useState("");
@@ -26,7 +27,7 @@ export default function MessageInput({ currentUser, discussionID, is_writable,ev
                 await APIPostMessage(data);
             }
         } catch (error){
-            console.log(error);
+            showToast('error','Sending error','An error occurred while sending the message.');
         }
     };
 

@@ -3,11 +3,14 @@ import {useEffect, useState} from "react";
 import {getCurrentUser as APIGetCurrentUser} from '../../API/index';
 import TopicsDisplay from "../../components/TopicsDisplay";
 import { stylesTopics } from '../../styles/stylesTopics';
+import { showToast } from '../../utils/utils';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Topics({route}) {
     const {event} = route.params;
     const [currentUser, setCurrentUser] = useState({});
     const [load, setLoad] = useState({loading: false,error: false,errorMessage: ''});
+    const navigation = useNavigation();
 
     const fetchData = async () => {
         try {
@@ -15,11 +18,11 @@ export default function Topics({route}) {
             
             const userResponse = await APIGetCurrentUser();
             setCurrentUser(userResponse); 
-    
-            setLoad({ loading: false, error: false, errorMessage: '' }); 
         } catch (error) {
-            console.error(error);
-            setLoad({ loading: false, error: true, errorMessage: error.message });
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
+        } finally {
+            setLoad({ loading: false, error: false, errorMessage: '' }); 
         }
     };
     

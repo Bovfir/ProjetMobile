@@ -7,6 +7,8 @@ import { stylesDiscussionChat } from '../../styles/stylesDiscussionChat';
 import { Message } from "../../components/Message";
 import MessageInput from "../../components/MessageInput";
 import DiscussionHeader from "../../components/DiscussionHeader";
+import { useNavigation } from '@react-navigation/native';
+import { showToast } from '../../utils/utils';
 
 export default function DiscussionChat({ route }) {
     const { currentUser, discussionID, discussionTitle, is_writable, eventcreatorusername } = route.params;
@@ -18,6 +20,7 @@ export default function DiscussionChat({ route }) {
     const [loadingNew, setLoadingNew] = useState(false);
     const [loadingError, setLoadingError] = useState({ error: false, errorMessage: '' });
     const [reachedEnd, setReachedEnd] = useState(false);
+    const navigation = useNavigation();
 
     const fetchInitialMessages = async () => {
         try {
@@ -34,8 +37,8 @@ export default function DiscussionChat({ route }) {
                 }
             })));
         } catch (error) {
-            setLoadingError({ error: true, errorMessage: error.message });
-            console.log(error);
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
         } finally {
             setLoadingInitial(false);
         }
@@ -65,7 +68,8 @@ export default function DiscussionChat({ route }) {
                 }))
             ]);
         } catch (error) {
-            console.log(error);
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
         } finally {
             setLoadingMore(false);
         }
@@ -91,7 +95,8 @@ export default function DiscussionChat({ route }) {
                 ...prevMessages
             ]);
         } catch (error) {
-            console.log(error);
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
         } finally {
             setLoadingNew(false);
         }

@@ -5,6 +5,7 @@ import {
     checkEmails,
     createInvitation,
 } from '../API/index'
+import { showToast } from '../utils/utils';
 
 export const FETCH_CATEGORIES_REQUEST = 'FETCH_CATEGORIES_REQUEST';
 export const FETCH_CATEGORIES_SUCCESS = 'FETCH_CATEGORIES_SUCCESS';
@@ -20,6 +21,7 @@ export const fetchCategories = () => async(dispatch) => {
         const categories = await APIGetCategories();
         dispatch({ type: FETCH_CATEGORIES_SUCCESS, payload: categories });
     } catch (error) {
+        showToast('error', 'Recovery error', 'An error occurred while retrieving categories. Please try later.');
         dispatch({ type: FETCH_CATEGORIES_FAILURE, error });
     }
 }
@@ -39,7 +41,7 @@ export const createEvent = (eventData, emailList) => async (dispatch) => {
         }
         
     } catch (error) {
-        console.error('Error creating event:', error);
+        showToast('error', 'Creation error', 'An error occurred while creating the event. Please try later.');
     }
 };
 
@@ -58,6 +60,6 @@ export const updateEvent = (eventData,emailList) => async (dispatch) => {
         }
 
     } catch (error) {
-        console.error('Error updating event:', error);
+        showToast('error', 'Update error', 'An error occurred while updating the event. Please try later.');
     }
 };

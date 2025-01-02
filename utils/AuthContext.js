@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo'; 
-import jwtDecode from 'jwt-decode';
 import { showToast } from './utils';
 
 export const AuthContext = createContext();

@@ -8,8 +8,9 @@ import CardEventWithOptions from '../../components/CardEventWithOptions';
 import SearchBar from '../../components/SearchBar';
 import EventTypeSelector from '../../components/EventTypeSelector';
 import { Header } from '../../components/Header';
-import { getEventCreatedOfUser as APIGetEventCreatedOfUser } from '../../API/index';
+import { getEventCreatedOfUser as APIGetEventCreatedOfUser,searchEventAllFilterCreatedEvent } from '../../API/index';
 import {URL} from "../../API/APIUrl";
+import { showToast } from '../../utils/utils';
 
 export default function MyEvent2() {
   const [text, setText] = useState('');
@@ -21,10 +22,14 @@ export default function MyEvent2() {
   const route = useRoute();
 
   const fetchData = async () => {
+    try {
       setLoading(true);
       const eventsCreated = await APIGetEventCreatedOfUser();
       setEventsAPI(eventsCreated);
       setLoading(false);
+    } catch (error) {
+      showToast('error', 'Recovery error', 'An error occurred while fetching the event. Please try later.');
+    }
   };
 
   useEffect(() => {
@@ -49,6 +54,18 @@ export default function MyEvent2() {
     setRefreshing(false);
   };
 
+    const handleSearchFollowedEvent = async (searchText) => {
+      try {
+        setLoading(true);
+        const eventResponse = await searchEventAllFilterCreatedEvent(1, searchText);
+        setEventsAPI(eventResponse.events);
+      } catch (error) {
+        showToast('error', 'Recovery error', 'An error occurred while retrieving events. Please try later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <Header title={"My Events"} notificationButton={true} navigation={navigation} />
@@ -65,7 +82,7 @@ export default function MyEvent2() {
             text={text}
             setText={setText}
             placeholder="Search your created events..."
-            onSearch={(searchText) => alert(`${searchText}`)}
+            onSearch={handleSearchFollowedEvent}
             style={style}
           />
           
@@ -93,6 +110,7 @@ export default function MyEvent2() {
                 type={selectedTypeEvent}
                 titleButton={"Update"}
                 index={index}
+                fetchData={fetchData}
               />
             ))
           )}

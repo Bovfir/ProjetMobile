@@ -6,7 +6,8 @@ import SearchBar from '../../components/SearchBar';
 import EventTypeSelector from '../../components/EventTypeSelector';
 import CardEventWithOptions from '../../components/CardEventWithOptions';
 import { Header } from '../../components/Header';
-import {getEventSubcribedOfUser as APIGetEventCreatedOfUser} from '../../API/index';
+import {getEventSubcribedOfUser as APIGetEventCreatedOfUser, searchEventAllFilterFollowedEvent} from '../../API/index';
+import { showToast } from '../../utils/utils';
 
 export default function MyEvent(){
   const [text,setText] = useState('');
@@ -17,10 +18,14 @@ export default function MyEvent(){
   const [selectedTypeEvent,setselectedTypeEvent] = useState('subscribed');
   
   const fetchData = async () => {
-    setLoading(true);
-    const eventsSubscribed = await APIGetEventCreatedOfUser();
-    setEventsAPISubscribed(eventsSubscribed);
-    setLoading(false);
+    try {
+      setLoading(true);
+      const eventsSubscribed = await APIGetEventCreatedOfUser();
+      setEventsAPISubscribed(eventsSubscribed);
+      setLoading(false);
+    } catch (error) {
+      showToast('error', 'Recovery error', 'An error occurred while fetching the event. Please try later.');
+    }
   };
 
   useEffect(() => {
@@ -33,6 +38,19 @@ export default function MyEvent(){
     setRefreshing(false);
   };
 
+  const handleSearchFollowedEvent = async (searchText) => {
+    try {
+      setLoading(true);
+      const eventResponse = await searchEventAllFilterFollowedEvent(1, searchText);
+      setEventsAPISubscribed(eventResponse.events);
+    } catch (error) {
+      showToast('error', 'Recovery error', 'An error occurred while retrieving events. Please try later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
   return (
     <View style={{flex:1, backgroundColor:'white'}}>
       <Header title={"My Events"} notificationButton={true} navigation={navigation} />
@@ -40,7 +58,7 @@ export default function MyEvent(){
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']}/>}>
         <View style={style.container}>
           
-          <SearchBar text={text} setText={setText} placeholder='Search your subscribed events...' onSearch={(searchText) => alert(`${searchText}`)} style={style}/>
+          <SearchBar text={text} setText={setText} placeholder='Search your subscribed events...' onSearch={handleSearchFollowedEvent} style={style}/>
           
           <EventTypeSelector stylesButton={stylesButton} selectedType={selectedTypeEvent}
             onSubscribedPress={() => {

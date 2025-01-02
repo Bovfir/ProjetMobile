@@ -11,7 +11,6 @@ import { useNavigation } from '@react-navigation/native';
 import PickImage from '../../utils/PickImage';
 import { uploadImage as APIUploadImage } from '../../API/index';
 import { URLImage } from '../../API/APIUrl';
-import Toast from 'react-native-toast-message';
 import { showToast } from '../../utils/utils';
 
 
@@ -59,9 +58,13 @@ export default function UserForm({route}){
             }
         } catch (error) {
             if(error.status === 409){
-                showToast('error',`Error : ${error.message}`,'Please enter another value.');
+                showToast('error',`Error : ${error.message}`,'Please enter a another value.');
             } else {
-                showToast('error','Error','Something went wrong. Please try again later.');
+                if(error.status === 400){
+                    showToast('error',`Error : ${error.message}`,'Please upload an another value.');
+                } else {
+                    showToast('error','Error','LASomething went wrong. Please try again later.');
+                }
             }
         }
     };

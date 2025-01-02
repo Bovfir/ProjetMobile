@@ -37,9 +37,9 @@ export default function FormEvent() {
     const navigation = useNavigation();
 
     const onRefresh = async () => {
-        setRefreshing(true);
-        dispatch(fetchCategories());
-        setRefreshing(false);
+            setRefreshing(true);
+            dispatch(fetchCategories());
+            setRefreshing(false);
     };
 
     useEffect(() => {
@@ -67,61 +67,70 @@ export default function FormEvent() {
     });
 
     const formikInitialValues = {
-        image: event ? event.picture_path : null,  
-        nameEvent: event ? event.title : '',  
-        location: event ? event.street_number : '',  
-        description: event ? event.description : '',  
-        eventStart: event ? new Date(event.event_start) : new Date(),  
-        eventEnd: event ? new Date(event.event_end) : new Date(),  
-        timeStart: event ? new Date(event.event_start) : new Date(),  
-        timeEnd: event ? new Date(event.event_end) : new Date(),  
-        selectedType: event ? event.is_private : false,  
+        image: event ? event.picture_path : null,
+        nameEvent: event ? event.title : '',
+        location: event ? event.street_number : '',
+        description: event ? event.description : '',
+        eventStart: event && event.event_start ? event.event_start.split(' ')[0] : new Date().toISOString().split('T')[0],
+        eventEnd: event && event.event_end ? event.event_end.split(' ')[0] : new Date().toISOString().split('T')[0],
+        timeStart: event && event.event_start ? event.event_start.split(' ')[1] : new Date().toTimeString().split(' ')[0],
+        timeEnd: event && event.event_end ? event.event_end.split(' ')[1] : new Date().toTimeString().split(' ')[0],        
+        selectedType: event ? event.is_private : false,
         selectedCategory: selectedCategory || (categories.length ? categories[0].id : null),
     };
+    
 
     const handleEventSubmit = async (values) => {
-        const isUpdate = event && event.id; 
-        let updatedData = {};
+        try {
+            const isUpdate = event && event.id; 
+            let updatedData = {};
 
-        const fieldsToCompare = [
-            { key: 'nameEvent', field: 'title' },
-            { key: 'description', field: 'description' },
-            { key: 'location', field: 'street_number' },
-            { key: 'selectedType', field: 'is_private' },
-            { key: 'eventStart', field: 'event_start', transform: (val) => formatDate(val) },
-            { key: 'eventEnd', field: 'event_end', transform: (val) => formatDate(val) },
-        ];
+            const fieldsToCompare = [
+                { key: 'nameEvent', field: 'title' },
+                { key: 'description', field: 'description' },
+                { key: 'location', field: 'street_number' },
+                { key: 'selectedType', field: 'is_private' },
+            ];
 
-        fieldsToCompare.forEach(({ key, field, transform }) => {
-            const newValue = values[key];
-            const oldValue = event ? event[field] : null;
-            const transformedValue = transform ? transform(newValue) : newValue;
+            fieldsToCompare.forEach(({ key, field, transform }) => {
+                const newValue = values[key];
+                const oldValue = event ? event[field] : null;
+                const transformedValue = transform ? transform(newValue) : newValue;
 
-            if (newValue !== oldValue) {
-                updatedData[field] = transformedValue;
+                if (newValue !== oldValue) {
+                    updatedData[field] = transformedValue;
+                }
+            });
+
+            if (selectedImage && selectedImage !== event?.picture_path) {
+                updatedData.picture_path = await APIUploadImage({ imageUri: selectedImage });
             }
-        });
 
-        if (selectedImage && selectedImage !== event?.picture_path) {
-            updatedData.picture_path = await APIUploadImage({ imageUri: selectedImage });
-        }
+            updatedData = {
+                ...updatedData,
+                category_id: selectedCategory,
+                location_id: 1, 
+                id: eventID,
+                event_start: `${values.eventStart} ${values.timeStart}`,
+                event_end: `${values.eventEnd} ${values.timeEnd}`
+            };
 
-        updatedData = {
-            ...updatedData,
-            category_id: selectedCategory,
-            location_id: 1, 
-            id: eventID
-        };
+            if (isUpdate) {
+                dispatch(updateEvent(updatedData,emailList));
+                showToast('success', 'Event updated successfully', 'Your event has been updated.');
+            } else {
+                dispatch(createEvent(updatedData, emailList));
+                showToast('success', 'Event created successfully', 'Your event is now available.');
+            }
 
-        if (isUpdate) {
-            dispatch(updateEvent(updatedData,emailList));
-            showToast('success', 'Event updated successfully', 'Your event has been updated.');
+            navigation.navigate('MyEventCreated',{eventUpdated: true});
+    } catch (error) {
+        if(error.status === 400){
+            showToast('error',`Error : ${error.message}`,'Please upload an another value.');
         } else {
-            dispatch(createEvent(updatedData, emailList));
-            showToast('success', 'Event created successfully', 'Your event is now available.');
+            showToast('error','Error','Something went wrong. Please try again later.');
         }
-
-        navigation.navigate('FormEvent',{eventUpdated: true});
+    }
     };
     
     const handleAddEmail = () => {

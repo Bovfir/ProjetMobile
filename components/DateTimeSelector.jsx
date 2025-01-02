@@ -16,37 +16,41 @@ const DateTimeSelector = ({
 }) => {
   const [showPicker, setShowPicker] = useState({ visible: false, mode: 'date', pickerFor: null });
 
-  const currentDate = new Date(); 
+  const parseDateTime = (date, time) => {
+    const [hours, minutes] = time.split(':');
+    const newDate = new Date(date);
+    newDate.setHours(hours, minutes, 0, 0);
+    return newDate;
+  };
 
-  const onChangePicker = (event, selectedValue) => {
+  const handlePickerChange = (event, selectedValue) => {
     if (event.type === 'set' && selectedValue) {
       const selectedDate = new Date(selectedValue);
-
       if (showPicker.pickerFor === 'startDate') {
-        if (selectedDate >= currentDate) {
-          onChangeEventStart(selectedValue);
-          if (eventEnd < selectedDate) {
-            onChangeEventEnd(selectedDate); 
-          }
+        if (selectedDate <= new Date(eventEnd)) {
+          onChangeEventStart(selectedDate.toISOString().split('T')[0]);
         } else {
-          Alert.alert("Erreur", "La date de début ne peut pas être antérieure à aujourd'hui.");
+          Alert.alert('Erreur', 'La date de début ne peut pas être après la date de fin.');
         }
       } else if (showPicker.pickerFor === 'endDate') {
-        if (selectedDate > eventStart || (selectedDate.toDateString() === eventStart.toDateString() && timeEnd > timeStart)) {
-          onChangeEventEnd(selectedValue);
+        if (selectedDate >= new Date(eventStart)) {
+          onChangeEventEnd(selectedDate.toISOString().split('T')[0]);
         } else {
-          Alert.alert("Erreur", "La date de fin ne peut pas être avant la date ou l'heure de début.");
+          Alert.alert('Erreur', 'La date de fin ne peut pas être avant la date de début.');
         }
       } else if (showPicker.pickerFor === 'startTime') {
-        onChangeTimeStart(selectedValue);
-        if (eventStart.toDateString() === eventEnd.toDateString() && timeEnd <= selectedValue) {
-          onChangeTimeEnd(new Date(selectedValue.getTime() + 60 * 60 * 1000)); 
+        const updatedStartTime = selectedDate.toTimeString().slice(0, 5);
+        if (parseDateTime(eventStart, updatedStartTime) < parseDateTime(eventEnd, timeEnd)) {
+          onChangeTimeStart(updatedStartTime);
+        } else {
+          Alert.alert('Erreur', "L'heure de début doit être avant l'heure de fin.");
         }
       } else if (showPicker.pickerFor === 'endTime') {
-        if (eventStart.toDateString() !== eventEnd.toDateString() || selectedValue > timeStart) {
-          onChangeTimeEnd(selectedValue);
+        const updatedEndTime = selectedDate.toTimeString().slice(0, 5);
+        if (parseDateTime(eventStart, timeStart) < parseDateTime(eventEnd, updatedEndTime)) {
+          onChangeTimeEnd(updatedEndTime);
         } else {
-          Alert.alert("Erreur", "L'heure de fin ne peut pas être avant l'heure de début.");
+          Alert.alert('Erreur', "L'heure de fin doit être après l'heure de début.");
         }
       }
     }
@@ -56,77 +60,68 @@ const DateTimeSelector = ({
   return (
     <View style={styleFormEvent.viewDateTimeContainer}>
       <View style={styleFormEvent.viewRectangle}>
-        <View style={styleFormEvent.viewTextInputContainer}>
-          <View style={styleFormEvent.row}>
-            <Text style={{ alignContent: 'center', alignSelf: 'center', marginRight: 10 }}>Event Start</Text>
-            <Pressable
-              style={styleFormEvent.viewTextInputDate}
-              onPress={() => setShowPicker({ visible: true, mode: 'date', pickerFor: 'startDate' })}
-            >
-              <View style={styleFormEvent.dateAndIcon}>
-                <Text style={{ fontSize: 12, flex: 1, textAlign: 'left' }}>
-                  {eventStart.toLocaleDateString()}
-                </Text>
-                <MaterialIcons name="calendar-month" size={20} color="#4B0082" />
-              </View>
-            </Pressable>
+        {/* Start Date and Time */}
+        <View style={styleFormEvent.row}>
+          <Text style={styleFormEvent.label}>Event Start</Text>
+          <Pressable
+            style={styleFormEvent.viewTextInputDate}
+            onPress={() => setShowPicker({ visible: true, mode: 'date', pickerFor: 'startDate' })}
+          >
+            <View style={styleFormEvent.dateAndIcon}>
+              <Text>{eventStart}</Text>
+              <MaterialIcons name="calendar-month" size={20} color="#4B0082" />
+            </View>
+          </Pressable>
+          <Pressable
+            style={styleFormEvent.viewTextInputTime}
+            onPress={() => setShowPicker({ visible: true, mode: 'time', pickerFor: 'startTime' })}
+          >
+            <View style={styleFormEvent.dateAndIcon}>
+              <Text>{timeStart}</Text>
+              <Feather name="clock" size={20} color="#4B0082" />
+            </View>
+          </Pressable>
+        </View>
 
-            <Pressable
-              style={styleFormEvent.viewTextInputTime}
-              onPress={() => setShowPicker({ visible: true, mode: 'time', pickerFor: 'startTime' })}
-            >
-              <View style={styleFormEvent.dateAndIcon}>
-                <Text>
-                  {timeStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-                <Feather name="clock" size={20} color="#4B0082" />
-              </View>
-            </Pressable>
-          </View>
-
-          <View style={styleFormEvent.row}>
-            <Text style={{ alignContent: 'center', alignSelf: 'center', marginRight: 10 }}>Event End</Text>
-            <Pressable
-              style={styleFormEvent.viewTextInputDate}
-              onPress={() => setShowPicker({ visible: true, mode: 'date', pickerFor: 'endDate' })}
-            >
-              <View style={styleFormEvent.dateAndIcon}>
-                <Text style={{ fontSize: 12, flex: 1, textAlign: 'left' }}>
-                  {eventEnd.toLocaleDateString()}
-                </Text>
-                <MaterialIcons name="calendar-month" size={20} color="#4B0082" />
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={styleFormEvent.viewTextInputTime}
-              onPress={() => setShowPicker({ visible: true, mode: 'time', pickerFor: 'endTime' })}
-            >
-              <View style={styleFormEvent.dateAndIcon}>
-                <Text>
-                  {timeEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </Text>
-                <Feather name="clock" size={20} color="#4B0082" />
-              </View>
-            </Pressable>
-          </View>
+        {/* End Date and Time */}
+        <View style={styleFormEvent.row}>
+          <Text style={styleFormEvent.label}>Event End</Text>
+          <Pressable
+            style={styleFormEvent.viewTextInputDate}
+            onPress={() => setShowPicker({ visible: true, mode: 'date', pickerFor: 'endDate' })}
+          >
+            <View style={styleFormEvent.dateAndIcon}>
+              <Text>{eventEnd}</Text>
+              <MaterialIcons name="calendar-month" size={20} color="#4B0082" />
+            </View>
+          </Pressable>
+          <Pressable
+            style={styleFormEvent.viewTextInputTime}
+            onPress={() => setShowPicker({ visible: true, mode: 'time', pickerFor: 'endTime' })}
+          >
+            <View style={styleFormEvent.dateAndIcon}>
+              <Text>{timeEnd}</Text>
+              <Feather name="clock" size={20} color="#4B0082" />
+            </View>
+          </Pressable>
         </View>
       </View>
+
       {showPicker.visible && (
         <DateTimePicker
           value={
             showPicker.pickerFor === 'startDate'
-              ? eventStart
+              ? new Date(eventStart)
               : showPicker.pickerFor === 'endDate'
-              ? eventEnd
+              ? new Date(eventEnd)
               : showPicker.pickerFor === 'startTime'
-              ? timeStart
-              : timeEnd
+              ? new Date(`1970-01-01T${timeStart}:00`)
+              : new Date(`1970-01-01T${timeEnd}:00`)
           }
           mode={showPicker.mode}
+          is24Hour={true}
           display="default"
-          onChange={onChangePicker}
-          minimumDate={showPicker.pickerFor === 'startDate' ? currentDate : undefined} 
+          onChange={handlePickerChange}
         />
       )}
     </View>

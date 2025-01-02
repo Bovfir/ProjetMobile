@@ -31,7 +31,11 @@ export default function Connection(){
                 showToast('error','Connection error',`${response}`);
             }
         } catch (error) {
-            showToast('error','Connection error','An error has occurred. Please try later.');
+            if(error.status === 404){
+                showToast('error','Connection failed','Email or Password incorrect. Please try again.');
+            } else {
+                showToast('error','Connection error','An error has occurred. Please try later.');
+            }
         }
     }
 

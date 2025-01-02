@@ -5,13 +5,17 @@ export const stylesHeader = StyleSheet.create({
         fontSize: 32,
         color: '#4B0082',
         fontFamily: 'BrunoAceSC',
-        textAlign: 'center', 
+        textAlign: 'center',
+        borderColor:'transparent',
+        borderWidth:1 
     },
     slogan: {
         fontSize: 12,
         color: 'black',
         fontFamily: 'BrunoAceSC',
         textAlign: 'center', 
+        borderColor:'transparent',
+        borderWidth:1 
     },
     container: {
         flexDirection: 'row', 

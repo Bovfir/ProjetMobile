@@ -114,28 +114,31 @@ export const styleFormEvent = StyleSheet.create({
         color: '#4B0082',
         fontSize: 14,
         fontWeight: '400',
-        marginLeft: 5, // Ajoute un léger espacement après l'icône
+        marginLeft: 5, 
     },
     row: {
-        flexDirection: 'row', // Aligner les éléments horizontalement
-        width: '100%', // Utilise toute la largeur disponible
-        marginBottom: 10, // Espacement entre les lignes
+        flexDirection: 'row', 
+        width: '100%', 
+        marginBottom: 10, 
     },
     viewDateTimeContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
+        alignSelf: 'center',
         marginTop: 20,
     },
     viewRectangle: {
         width: '85%',
-        justifyContent: 'center', // Centrer horizontalement les rectangles
-        alignItems: 'center', // Centrer les rectangles au sein de leur conteneur
+        justifyContent: 'center', 
+        alignItems: 'center', 
     },
-    viewTextInputContainer: {
+    label: {
+        marginRight: 10,
+        alignSelf: "center"
+        
     },
     viewTextInputDate: {
-        width: '35%',  // Donne plus d'espace au rectangle de la date
+        width: '35%',  
         height: 30,
         borderColor: '#E7E1E1',
         borderWidth: 1,
@@ -149,7 +152,7 @@ export const styleFormEvent = StyleSheet.create({
     },
 
     viewTextInputTime: {
-        width: '28%',  // Réduit la largeur pour l'heure
+        width: '28%',  
         height: 30,
         borderColor: '#E7E1E1',
         borderWidth: 1,
@@ -164,8 +167,8 @@ export const styleFormEvent = StyleSheet.create({
     dateAndIcon: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between', // Met de l'espace entre le texte et l'icône
-        width: '100%' // S'assurer que cela occupe tout l'espace du rectangle
+        justifyContent: 'space-between', 
+        width: '100%' 
     },
     scrollCategories: {
         width: '85%',
@@ -180,7 +183,7 @@ export const styleFormEvent = StyleSheet.create({
         width: 53,
         height: 53,
         borderRadius: 8,
-        marginRight: 10, // Espacement entre les cartes
+        marginRight: 10, 
         marginBottom: 10,
         paddingVertical: 3,
     },

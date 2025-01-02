@@ -9,6 +9,7 @@ import {Button,Card} from "react-native-paper";
 import { AuthContext } from '../../utils/AuthContext';
 import Toast from 'react-native-toast-message';
 import { URLImage } from '../../API/APIUrl';
+import { showToast } from '../../utils/utils';
 
 export default function Profile(){
     const [userInfo, setUserInfo] = useState({});
@@ -46,21 +47,29 @@ export default function Profile(){
     },[isFocused])
 
     const getNbEventFollowed = async()=>{
-        const response = await API.getNbEventUser();
-        setNbEventFollowed(response);
+        try {
+            const response = await API.getNbEventUser();
+            setNbEventFollowed(response); 
+        } catch(error) {
+            showToast('error','Recovery error','An error occurred while retrieving the number of event followed');
+        }
     }
 
     const getNbEventCreated = async()=>{
-        const response = await API.getNbEventCreated();
-        setNbEventCreated(response)
+        try {
+            const response = await API.getNbEventCreated();
+            setNbEventCreated(response);
+        } catch (error) {
+            showToast('error','Recovery error','An error occurred while retrieving the number of event created');
+        }
     }
 
     const getUserInfo = async()=>{
-        const response = await API.getInfoUser();
-        if(response === "JWT Expired"){
-            navigation.navigate('Connection');
-        }else{
+        try {
+            const response = await API.getInfoUser();
             setUserInfo(response);
+        } catch (error) {
+            showToast('error','Error','Something went wrong. Please try again later.');
         }
     }
 
@@ -92,18 +101,9 @@ export default function Profile(){
                 await API.deleteAccount();
                 await handleLogout(); 
                 Vibration.vibrate(500);
-                Toast.show({
-                    type: 'success',
-                    text1: 'Account deleted',
-                    text2: 'Your account has been deleted.',
-                });
+                showToast('success','Account deleted','Your account has been deleted.')
             } catch (error) {
-                console.error('Error deleting account:', error);
-                Toast.show({
-                    type: 'error',
-                    text1: 'Deletion error',
-                    text2: 'An error occurred while deleting the account.',
-                });
+                showToast("error",'Deletion error','An error occurred while deleting the account.');
             }
         };
         

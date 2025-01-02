@@ -25,11 +25,7 @@ export const login = async (data) => {
         await AsyncStorage.setItem('jwtToken',response.data)
         return "ok";
     }catch (error) {
-        if(error.status === 404){
-            return "Bad Info"
-        }else{
-            return "Internal error! Please, try later"
-        }
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -43,13 +39,7 @@ export const getInfoUser = async()=>{
         });
         return response.data;
     } catch (error) {
-        if(error.status === 404){
-            return "Bad Info"
-        }else if (error.status === 401){
-            return "JWT Expired"
-        }else{
-            return "Internal error! Please, try later"
-        }
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -88,7 +78,7 @@ export const deleteAccount = async()=>{
             },
         })
     } catch (error) {
-        console.log(error)
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -102,7 +92,7 @@ export const getNbEventUser = async()=>{
         })
         return response.data.response
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -116,33 +106,33 @@ export const getNbEventCreated = async()=>{
         })
         return response.data.nbRows
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
 export const declineInvitation = async(event_id)=>{
     try {
         const token = await getToken();
-        const response = await axios.patch(`${URL}/linkUserEvent/invitation/decline/`,{event_id},{
+        await axios.patch(`${URL}/linkUserEvent/invitation/decline/`,{event_id},{
             headers:{
                 'Authorization': `Bearer ${token}`,
             },
         })
     } catch (error) {
-        console.log(error.response.data)
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
 export const acceptInvitation = async(event_id)=>{
     try {
         const token = await getToken();
-        const response = await axios.patch(`${URL}/linkUserEvent/invitation/accept/`,{event_id},{
+        await axios.patch(`${URL}/linkUserEvent/invitation/accept/`,{event_id},{
             headers:{
                 'Authorization': `Bearer ${token}`,
             },
         })
     } catch (error) {
-        console.log(error.response.data)
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -160,7 +150,7 @@ export const getInvitation = async(page)=>{
         })
         return response.data;
     } catch (error) {
-        console.log(error.response.data);
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -178,7 +168,7 @@ export const getNotification = async(page)=>{
         })
         return response.data;
     } catch (error) {
-        console.log(error.response.data);
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -203,52 +193,60 @@ export const getDataBySearchAndCategories = async(page,categories, search)=>{
         })
         return response.data
     } catch (error) {
-        console.log(error)
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
-export const searchEvent = async({search, page})=>{
+export const searchEventAllFilterFollowedEvent = async (page, search) => {
     try {
         const token = await getToken();
-        const searchEncoded = new URLSearchParams();
-        searchEncoded.set('search',search);
-        searchEncoded.set('page', page);
-        searchEncoded.set('perPage',perPage);
-        const response = await axios.get(`${URL}/search/events/search?${searchEncoded.toString()}`,{
+        const params = {
+            page: page,
+            perPage: perPage,
+            search: search,
+        }
+        const response = await axios.get(`${URL}/search/events/searchAllFilter/followEvent`,{
             headers:{
                 'Authorization': `Bearer ${token}`,
             },
-        });
-        return response.data.response
-    } catch (error) {
-        console.log(error);
-    }
-};
-export const getDataByCategories =async(page,categories) =>{
-    try {
-        const response = await axios.get(`${URL}/search/event/byCategory`,{
-            params:{
-                page: page,
-                perPage: perPage,
-                categories: categories.join(',')
-            }
+            params: params
         })
-        return response.data.response
+        return response.data
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status};
     }
-};
+}
 
-const getAllCategories = async () => {
+export const searchEventAllFilterCreatedEvent = async (page, search) => {
+    try {
+        const token = await getToken();
+        const params = {
+            page: page,
+            perPage: perPage,
+            search: search,
+        }
+        const response = await axios.get(`${URL}/search/events/searchAllFilter/ownEvent`,{
+            headers:{
+                'Authorization': `Bearer ${token}`,
+            },
+            params: params
+        })
+        return response.data
+    } catch (error) {
+        throw {message : error.response.data, status: error.response.status};
+    }
+}
+
+export const getAllCategories = async () => {
     try {
         const categoriesList = await axios.get(`${URL}/category/get/allTitle`);
         return categoriesList.data;
     } catch (error){
-        console.log("Erreur : ", error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
-const addEvent = async (eventData) => {
+export const addEvent = async (eventData) => {
     try {
         const token = await getToken();
         const response = await axios.post(`${URL}/event/oneself/`,eventData, {
@@ -258,7 +256,7 @@ const addEvent = async (eventData) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
@@ -272,7 +270,7 @@ export const updateEvent = async (eventData) => {
         });
         return response.data;
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 }
 
@@ -285,11 +283,11 @@ export const deleteEvent = async(id) => {
             }
         });
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
-const uploadImage = async ({imageUri}) => {
+export const uploadImage = async ({imageUri}) => {
     const formData = new FormData();
 
     formData.append('image', {
@@ -304,14 +302,13 @@ const uploadImage = async ({imageUri}) => {
                 'Content-Type': 'multipart/form-data',  
             },
         });
-
         return response.data.imagePath;
     } catch (error) {
-        throw error;
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
-const getEventCreatedOfUser = async () => {
+export const getEventCreatedOfUser = async () => {
     try {
         const token = await getToken();
         const size = 5;
@@ -325,11 +322,11 @@ const getEventCreatedOfUser = async () => {
 
         return eventsAPIResponse.data;
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
-const getEventSubcribedOfUser = async() => {
+export const getEventSubcribedOfUser = async() => {
     try {
         const token = await getToken();
         const size = 5;
@@ -343,11 +340,11 @@ const getEventSubcribedOfUser = async() => {
 
         return eventsAPIResponse.data;
     } catch (error) {
-        console.log(error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
-const getNbEvents = async (page) => {
+export const getNbEvents = async (page) => {
     try {
         const token = await getToken();
         const eventsAPIResponse = await axios.get(`${URL}/event/nbEvents/search?page=${page}&perPage=${perPage}`, {
@@ -357,7 +354,7 @@ const getNbEvents = async (page) => {
         });
         return eventsAPIResponse.data;
     } catch (error) {
-      console.error("Error fetching events:", error);
+        throw {message : error.response.data, status: error.response.status}; 
     }
 };
 
@@ -372,7 +369,7 @@ export const ratioEvent = async (eventID) => {
         });
         return response.data.response;
     } catch (error) {
-        throw new Error('Unable to fetch ratioEvent.');
+        throw {message : error.response.data, status: error.response.status};
     }
 }
 
@@ -386,7 +383,7 @@ export const checkEmails = async (emails) => {
         });
         return response.data;
     } catch (error) {
-        throw error;
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -400,7 +397,7 @@ export const createInvitation = async (data) => {
             }
         });
     } catch (error) {
-        throw error;
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -414,7 +411,7 @@ export const checkInvitation = async (data) => {
         });  
         return response.data;
     } catch (error) {
-        throw error;
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -429,8 +426,7 @@ export const getCurrentUser = async () => {
 
         return response.data;
     } catch (error) {
-        console.error("Error fetching current user:", error.message);
-        throw new Error("Unable to fetch current user."); 
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -445,7 +441,7 @@ export const getDiscussionsFromEventID = async (eventID) => {
 
         return reponse.data;
     } catch (error) {
-        throw new Error('Unable to fetch discussions from even.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -458,7 +454,7 @@ export const createDiscussion = async (data) => {
             }  
         });
     } catch (error) {
-        throw error;
+        throw {message : error.response.data, status: error.response.status};
     }
 }
 
@@ -472,7 +468,7 @@ export const getDiscussionsMessages = async (discussionID, offset) => {
         });
         return reponse.data;
     } catch (error) {
-        throw new Error('Unable to fetch messages in discussions.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -486,7 +482,7 @@ export const getOlderMessages = async (discussionID, previousMessageID) => {
         });
         return response.data;
     } catch (error) {
-        throw new Error('Unable to fetch older messages.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -500,7 +496,7 @@ export const getNewerMessages = async (discussionID, previousMessageID) => {
         });
         return rep.data;
     } catch (error){
-        throw new Error('Unable to fetch newer messages.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -514,7 +510,7 @@ export const getEvent = async (eventID) => {
         });
         return response.data;
     } catch(error) {
-        throw new Error('Unable to fetch event.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -528,7 +524,7 @@ export const getUser = async (id) => {
         });
         return response.data;
     } catch (error){
-        throw new Error('Unable to fetch user.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -542,7 +538,7 @@ export const getLocation = async (locationID) => {
         });
         return response.data;
     } catch(error) {
-        throw new Error('Unable to fetch location.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -556,7 +552,7 @@ export const getCategory = async (categoryID) => {
         });
         return response.data;
     } catch(error){
-        throw new Error('Unable to fetch category.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -570,7 +566,7 @@ export const getNbSubscribers = async (eventID) => {
         });
         return response.data;
     } catch(error) {
-        throw new Error('Unable to fetch nbSubscribers.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -584,8 +580,7 @@ export const postMessage = async (message) => {
         });
         return response.data;
     } catch (error){
-        console.log(error)
-        throw new Error('Unable to post message.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -599,7 +594,7 @@ export const followEvent = async(event_id) => {
         });
         return response.data;
     } catch (error) {
-        throw new Error('Unable to follow event.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -613,7 +608,7 @@ export const unFollowEvent = async(event_id) => {
         });
         return response.data;
     } catch (error) {
-        throw new Error('Unable to unfollow event.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
 
@@ -627,19 +622,6 @@ export const eventAccepted = async (event_id) => {
         });
         return response.data;
     } catch (error) {
-        throw new Error('Unable to get eventAccepted.');
+        throw {message : error.response.data, status: error.response.status};
     }
 };
-
-
-  
-
-export {
-    getAllCategories,
-    addEvent,
-    uploadImage, 
-    getEventCreatedOfUser,
-    getEventSubcribedOfUser,
-    getNbEvents,
-};
-
