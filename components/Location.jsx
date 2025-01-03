@@ -8,14 +8,13 @@ export default function LocationRequest() {
 
   useEffect(() => {
     (async () => {
-      // Demander la permission
+
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission de localisation refusée');
         return;
       }
 
-      // Obtenir la localisation actuelle
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
 

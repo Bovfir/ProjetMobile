@@ -160,15 +160,15 @@ export const styleCard = StyleSheet.create({
     },
     iconCardLeft: {
         position: 'absolute',
-        top: 10,  // Distance depuis le haut
-        left: 10, // Distance depuis la gauche
-        width: 25, // Largeur du rectangle
-        height: 25, // Hauteur du rectangle
-        backgroundColor: '#4B0082', // Couleur du rectangle (par exemple rouge-tomate)
-        borderRadius: 5, // Coins arrondis (optionnel)
+        top: 10,  
+        left: 10, 
+        width: 25, 
+        height: 25, 
+        backgroundColor: '#4B0082', 
+        borderRadius: 5,
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1, // Assurez-vous qu'il soit visible au-dessus
+        zIndex: 1, 
     },
     iconCardRight: {
         position: 'absolute',
@@ -184,21 +184,21 @@ export const styleCard = StyleSheet.create({
     },
     cardDateBottom: {
         position: 'absolute',
-        top: 55, // Position verticale
-        left: 10, // Position horizontale
-        width: 32, // Largeur de la carte
-        height: 32, // Hauteur de la carte
+        top: 55, 
+        left: 10, 
+        width: 32, 
+        height: 32,
         backgroundColor: '#FFFFFF',
-        borderRadius: 5, // Arrondir les bords
-        justifyContent: 'center', // Centre le contenu verticalement
-        alignItems: 'center', // Centre le contenu horizontalement
-        zIndex: 1, // S'assurer qu'il reste au-dessus des autres éléments
+        borderRadius: 5,
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        zIndex: 1, 
     }, 
     cardDateText: {
-        fontSize: 12,  // Ajuster la taille du texte
+        fontSize: 12,  
         fontWeight: 800,
-        color: '#000', // Couleur du texte (vous pouvez la changer)
-        textAlign: 'center', // S'assurer que le texte est centré
+        color: '#000', 
+        textAlign: 'center',
         marginTop: 0,
     },
 }); 
