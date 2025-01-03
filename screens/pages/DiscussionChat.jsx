@@ -132,15 +132,9 @@ export default function DiscussionChat({ route }) {
 
     if (messages.length > 0) {
         Content = (
-            <FlatList
-                data={messages}
-                keyExtractor={(item) => item.id.toString()}
+            <FlatList data={messages} keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <Message
-                        user={item.user}
-                        content={item.content}
-                        isCurrentUser={item.user.id === currentUser.id}
-                    />
+                    <Message user={item.user} content={item.content} isCurrentUser={item.user.id === currentUser.id}/>
                 )}
                 inverted
                 onEndReached={() => loadMoreMessages()}

@@ -111,7 +111,7 @@ export default function  Notifications(){
         if (selected === "first") {
           return <Notification key={item.id} item={item} />;
         }
-        return <Invitation key={item.id} item={item} />;
+        return <Invitation key={item.id} item={item}/>;
       };
     
       return (

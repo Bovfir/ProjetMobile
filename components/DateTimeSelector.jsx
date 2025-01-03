@@ -23,14 +23,12 @@ const DateTimeSelector = ({eventStart,timeStart,eventEnd,timeEnd,onChangeEventSt
           onChangeEventStart(selectedDate.toISOString().split('T')[0]);
         } else {
           showToast('error','Input error','The start date cannot be after the end date.');
-          //Alert.alert('Erreur', 'The start date cannot be after the end date.');
         }
       } else if (showPicker.pickerFor === 'endDate') {
         if (selectedDate >= new Date(eventStart)) {
           onChangeEventEnd(selectedDate.toISOString().split('T')[0]);
         } else {
           showToast('error','Input error','The end date cannot be before the start date.');
-          //Alert.alert('Erreur', 'La date de fin ne peut pas être avant la date de début.');
         }
       } else if (showPicker.pickerFor === 'startTime') {
         const updatedStartTime = selectedDate.toTimeString().slice(0, 5);
@@ -38,7 +36,6 @@ const DateTimeSelector = ({eventStart,timeStart,eventEnd,timeEnd,onChangeEventSt
           onChangeTimeStart(updatedStartTime);
         } else {
           showToast('error','Input error','The start time cannot be after the end time.');
-          //Alert.alert('Erreur', "L'heure de début doit être avant l'heure de fin.");
         }
       } else if (showPicker.pickerFor === 'endTime') {
         const updatedEndTime = selectedDate.toTimeString().slice(0, 5);
@@ -46,7 +43,6 @@ const DateTimeSelector = ({eventStart,timeStart,eventEnd,timeEnd,onChangeEventSt
           onChangeTimeEnd(updatedEndTime);
         } else {
           showToast('error','Input error','The end time cannot be before the start time.');
-          //Alert.alert('Erreur', "L'heure de fin doit être après l'heure de début.");
         }
       }
     }

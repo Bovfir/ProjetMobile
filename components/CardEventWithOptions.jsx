@@ -35,7 +35,7 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
             }
             showToast('success', 'Unsubscribe Event', 'You have unsubscribed from this event');
         } else if (type === "created") {
-            navigation.navigate('FormEvent', { event: event, eventID: index + 1 });
+            navigation.navigate('FormEvent', { event: event,type: 'update', eventID: index + 1 });
         }
     };
 
@@ -176,6 +176,7 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
             <Modal animationType="fade" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
                 <View style={stylesButtonInvitation.modalContainer}>
                     <View style={stylesButtonInvitation.modalContent}>
+                        
                         <Text style={stylesButtonInvitation.modalTitle}>Send Invitation</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput
@@ -190,17 +191,15 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
                                 title="+"
                             />
                         </View>
+                        
                         <ScrollView horizontal contentContainerStyle={stylesButtonInvitation.scrollContainer}>
                             {emailList.map((email, index) => (
-                                <Chip
-                                    key={index}
-                                    style={stylesButtonInvitation.chip}
-                                    onClose={() => handleRemoveEmail(email)}
-                                >
+                                <Chip key={index} style={stylesButtonInvitation.chip} onClose={() => handleRemoveEmail(email)}>
                                     {email}
                                 </Chip>
                             ))}
                         </ScrollView>
+                        
                         <View style={stylesButtonInvitation.modalButtons}>
                             <Button title="Cancel" onPress={() => setModalVisible(false)} type="outline" />     
                             <Button title="Send" onPress={sendInvitations} />

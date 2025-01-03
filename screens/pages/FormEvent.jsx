@@ -16,9 +16,10 @@ import { showToast } from '../../utils/utils';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import EventImageSelector from '../../components/EventImageSelector';
-import { uploadImage as APIUploadImage,} from '../../API/index';
+import { uploadImage as APIUploadImage,checkInvitation} from '../../API/index';
 import { fetchCategories, createEvent, updateEvent } from '../../actions/eventActions';
 import { useDispatch, useSelector } from 'react-redux';
+import { TextInput } from 'react-native-paper';
 
 
 export default function FormEvent() {
@@ -32,14 +33,17 @@ export default function FormEvent() {
     const {categories, loading} = useSelector((state) => state.event);
     
     const route = useRoute();
-    const {event,eventID, eventUpdated} = route.params || {};
+    const {event,eventID,type, eventUpdated} = route.params || {};
 
     const navigation = useNavigation();
 
     const onRefresh = async () => {
-            setRefreshing(true);
-            dispatch(fetchCategories());
-            setRefreshing(false);
+        setRefreshing(true);
+        dispatch(fetchCategories());
+        if(type === 'update' && event.description){
+            setShowDescriptionInput(true);
+        }
+        setRefreshing(false);
     };
 
     useEffect(() => {
@@ -65,7 +69,6 @@ export default function FormEvent() {
         eventStart: Yup.date().required('Start date is required'),
         eventEnd: Yup.date().required('End date is required'),
     });
-
     const formikInitialValues = {
         image: event ? event.picture_path : null,
         nameEvent: event ? event.title : '',
@@ -73,11 +76,16 @@ export default function FormEvent() {
         description: event ? event.description : '',
         eventStart: event && event.event_start ? event.event_start.split(' ')[0] : new Date().toISOString().split('T')[0],
         eventEnd: event && event.event_end ? event.event_end.split(' ')[0] : new Date().toISOString().split('T')[0],
-        timeStart: event && event.event_start ? event.event_start.split(' ')[1] : new Date().toTimeString().split(' ')[0],
-        timeEnd: event && event.event_end ? event.event_end.split(' ')[1] : new Date().toTimeString().split(' ')[0],        
+        timeStart: event && event.event_start 
+            ? event.event_start.split(' ')[1].slice(0, 5) 
+            : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timeEnd: event && event.event_end 
+            ? event.event_end.split(' ')[1].slice(0, 5) 
+            : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         selectedType: event ? event.is_private : false,
         selectedCategory: selectedCategory || (categories.length ? categories[0].id : null),
     };
+    
     
 
     const handleEventSubmit = async (values) => {
@@ -133,17 +141,38 @@ export default function FormEvent() {
     }
     };
     
-    const handleAddEmail = () => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (emailRegex.test(emailInput)) {
-            if (!emailList.includes(emailInput.toLocaleLowerCase())) {
-                setEmailList([...emailList, emailInput.toLocaleLowerCase()]);
-                setEmailInput('');
+    const handleAddEmail = async () => {
+        try {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(emailInput)) {
+                let exist;
+                if(type === 'update'){
+                    exist = await checkInvitation({ email: emailInput.toLowerCase(), event_id: event.id });
+                }
+    
+                if (exist) {
+                    showToast('error', 'Email Exists', 'This email is already linked to the event.');
+                } else if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
             } else {
-                showToast('error','Error : Email already added.','This email has already been added.')
+                showToast('error', 'Invalid Email', 'The email format is incorrect.');
             }
-        } else {
-            showToast('error','Error : Invalid email.','The email format is incorrect.')
+        } catch (error) {
+            if (error.status === 404) {
+                if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');  
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
+            } else {
+                showToast('error', 'Error', 'An error occurred while checking the email.');
+            }
         }
     };
 
@@ -183,35 +212,33 @@ export default function FormEvent() {
                         />
                         <HelperTextField touched={touched} errors={errors} fieldName={"nameEvent"} style={styleFormEvent.helpText}/>
 
-                        <View style={styleFormEvent.viewDescription}>
-                            <Pressable onPress={() => setShowDescriptionInput(!showDescriptionInput)}>
+                        <View style={styleFormEvent.containerName}>
+                            <Pressable onPress={() => {setShowDescriptionInput(!showDescriptionInput); values.description = ''}} style={styleFormEvent.toggleDescriptionButton}>
                                 <View style={styleFormEvent.row}>
                                     {showDescriptionInput ? (
                                         <>
-                                            <AntDesign name="minus" size={16} color="#4B0082" />
+                                            <AntDesign name="minus" size={16} color="#4B0082" style={{marginLeft: 30,}}/>
                                             <Text style={styleFormEvent.addDescription}>Remove Description</Text>
                                         </>
                                     ) : (
                                         <>
-                                            <AntDesign name="plus" size={16} color="#4B0082" />
+                                            <AntDesign name="plus" size={16} color="#4B0082" style={{marginLeft: 30,}}/>
                                             <Text style={styleFormEvent.addDescription}>Add Description</Text>
                                         </>
                                     )}
                                 </View>
                             </Pressable>
                             {showDescriptionInput && (
-                                <View style={styleFormEvent.textInputContainerDescription}>
-                                    <TextInputForm
-                                        placeholder="Enter a description..."
-                                        onChangeText={handleChange('description')}
-                                        onBlur={handleBlur('description')}
-                                        value={values.description}
-                                        styles={styleFormEvent}
-                                        multiline={true}
-                                    />
-                                </View>
+                                <TextInputForm
+                                    value={values.description}
+                                    placeholder="Enter a description..."
+                                    onChangeText={handleChange('description')}
+                                    onBlur={handleBlur('description')}
+                                    styles={styleFormEvent}
+                                />
                             )}
                         </View>
+
 
                         <DateTimeSelector
                             eventStart={values.eventStart}

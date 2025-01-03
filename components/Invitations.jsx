@@ -11,6 +11,7 @@ export function Invitation({item}) {
     const handleDecline = async ()=>{
       try {
         await API.declineInvitation(item.event_id);
+        getInvitation()
       } catch (error) {
         showToast('error','Decline error','An error occurred while declining the invitation');
       }

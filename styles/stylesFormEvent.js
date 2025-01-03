@@ -87,34 +87,15 @@ export const styleFormEvent = StyleSheet.create({
         alignSelf: 'center',
         width: '85%',
         marginTop: 5,
-        marginLeft:10
     },
-    textInputContainerDescription: {
-        width: '100%',
-        borderWidth: 1,
-        borderColor: '#E7E1E1',
-        borderRadius: 5,
-        marginTop: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    textInputDescription: {
-        width: '100%',
-        height: 70,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        fontSize: 14,
-        color: 'black',
-        textAlignVertical: 'top',
-        borderRadius: 5,
-        multiline: true,
-        numberOfLines: 4
+    toggleDescriptionButton: {
+        alignSelf: 'flex-start',
     },
     addDescription: {
         color: '#4B0082',
         fontSize: 14,
         fontWeight: '400',
-        marginLeft: 5, 
+        marginLeft: 5,
     },
     row: {
         flexDirection: 'row', 

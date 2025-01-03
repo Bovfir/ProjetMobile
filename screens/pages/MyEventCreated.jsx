@@ -69,26 +69,13 @@ export default function MyEvent2() {
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
       <Header title={"My Events"} notificationButton={true} navigation={navigation} />
-      <ScrollView
-        showsVerticalScrollIndicator={true}
-        style={{ flex: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />
-        }
-      >
+      <ScrollView showsVerticalScrollIndicator={true} style={{ flex: 1 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}>
         <View style={style.container}>
           
-          <SearchBar
-            text={text}
-            setText={setText}
-            placeholder="Search your created events..."
-            onSearch={handleSearchFollowedEvent}
-            style={style}
-          />
+          <SearchBar text={text} setText={setText} placeholder="Search your created events..." onSearch={handleSearchFollowedEvent} style={style}/>
           
-          <EventTypeSelector
-            stylesButton={stylesButton}
-            selectedType={selectedTypeEvent}
+          <EventTypeSelector stylesButton={stylesButton} selectedType={selectedTypeEvent}
             onSubscribedPress={() => {
               setSelectedTypeEvent('subscribed');
               navigation.navigate('MyEventSubscribed');
@@ -116,9 +103,11 @@ export default function MyEvent2() {
           )}
         </View>
       </ScrollView>
-      <Card style={style.buttonAddEvent} onPress={() => navigation.navigate('FormEvent', { eventUpdated: false })}>
+
+      <Card style={style.buttonAddEvent} onPress={() => navigation.navigate('FormEvent', {type: 'create', eventUpdated: false })}>
         <AntDesign name="plus" color={"white"} size={30} />
       </Card>
+    
     </View>
   );
 };
