@@ -25,18 +25,9 @@ export default function Profile(){
     const handleLogout = async () => {
         try {
             await logout(); 
-            Toast.show({
-                type: 'success',
-                text1: 'Logout successful',
-                text2: 'You are now logged out.',
-            });
+            showToast('success','Logout successful','You are now logged out.');
         } catch (error) {
-            console.error(error);
-            Toast.show({
-                type: 'error',
-                text1: 'Log out error',
-                text2: 'An error has occurred. Please try later.',
-            });
+            showToast('error','Log out error','An error has occurred. Please try later.');
         }
     };
 

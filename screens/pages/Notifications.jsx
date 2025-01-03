@@ -32,7 +32,7 @@ export default function  Notifications(){
           }
 
       } catch (error) {
-        console.error("Erreur lors du rafraîchissement :", error);
+        showToast('error','Refresh error','Error while refreshing.');
       } finally {
         setRefreshing(false);
       }
