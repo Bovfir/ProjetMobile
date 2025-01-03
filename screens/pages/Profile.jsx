@@ -7,7 +7,6 @@ import { useContext, useEffect, useState } from 'react';
 import * as API from '../../API/index';
 import {Button,Card} from "react-native-paper";
 import { AuthContext } from '../../utils/AuthContext';
-import Toast from 'react-native-toast-message';
 import { URLImage } from '../../API/APIUrl';
 import { showToast } from '../../utils/utils';
 

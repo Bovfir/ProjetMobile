@@ -122,27 +122,13 @@ export default function EventPresentation({ route }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white'}}>
-            <Header
-                title={"Details"}
-                subTitle={"Event"}
-                backButton={true}
-                notificationButton={true}
-                navigation={navigation}
-            />
-            <ScrollView
-                showsVerticalScrollIndicator={true}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />
-                }
-                contentContainerStyle={{ paddingBottom: 100 }} 
-            >
+            <Header title={"Details"} subTitle={"Event"} backButton={true} notificationButton={true} navigation={navigation}/>
+            <ScrollView showsVerticalScrollIndicator={true} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
+                contentContainerStyle={{ paddingBottom: 100 }}>
                 <View style={stylesEventPresentation.container}>
     
                     <Card style={stylesEventPresentation.cardImage}>
-                        <Card.Cover
-                            style={stylesEventPresentation.cardCover}
-                            source={{ uri: `${URLImage}/${eventData.picture_path}` }}
-                        />
+                        <Card.Cover style={stylesEventPresentation.cardCover} source={{ uri: `${URLImage}/${eventData.picture_path}`}}/>
                         <View style={stylesEventPresentation.imageOverlay}>
                             <IconComponent name={categoryData.icon_name} size={15} color="#FFFFFF" />
                             <Text style={stylesEventPresentation.overlayText}>{categoryData.title}</Text>
@@ -156,10 +142,7 @@ export default function EventPresentation({ route }) {
                     <Card style={stylesEventPresentation.containerUser}>
                         <View style={stylesEventPresentation.contentWrapper}>
                             <Text style={stylesEventPresentation.textUser}>By {userData.user_name}</Text>
-                            <Avatar.Image
-                                size={35}
-                                source={{ uri: `${URLImage}/${userData.picture_path}` }}
-                            />
+                            <Avatar.Image size={35} source={{ uri: `${URLImage}/${userData.picture_path}`}}/>
                         </View>
                     </Card>
     
@@ -230,5 +213,4 @@ export default function EventPresentation({ route }) {
             </View>
         </View>
     );
-    
 };

@@ -1,4 +1,4 @@
-import {ActivityIndicator, StyleSheet, Text, View, SafeAreaView} from 'react-native';
+import {ActivityIndicator, Text, View, SafeAreaView} from 'react-native';
 import {useEffect, useState} from "react";
 import {getCurrentUser as APIGetCurrentUser} from '../../API/index';
 import TopicsDisplay from "../../components/TopicsDisplay";

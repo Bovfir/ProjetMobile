@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ScrollView, Pressable, RefreshControl, Image } from 'react-native';
+import { Text, View, ScrollView, Pressable, RefreshControl } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { styleFormEvent } from '../../styles/stylesFormEvent';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,7 +16,6 @@ import { showToast } from '../../utils/utils';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import EventImageSelector from '../../components/EventImageSelector';
-import { formatDate } from '../../utils/utils';
 import { uploadImage as APIUploadImage,} from '../../API/index';
 import { fetchCategories, createEvent, updateEvent } from '../../actions/eventActions';
 import { useDispatch, useSelector } from 'react-redux';

@@ -1,4 +1,4 @@
-import { Text, View, FlatList, Image} from 'react-native';
+import { View, FlatList, Image} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {stylesNotification} from '../../styles/stylesNotification';
 import {Notification} from '../../components/Notification'

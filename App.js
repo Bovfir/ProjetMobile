@@ -132,6 +132,8 @@ const toastConfig = {
   ),
 };
 
+
+export default function App(){
     return (
       <Provider store={store}>
       <AuthProvider>
