@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
             );
             return JSON.parse(jsonPayload);
         } catch (e) {
-            console.error('Erreur lors du décodage manuel du JWT:', e);
+            showToast('error','Session Error','Erreur lors du décodage manuel du JWT');
             return null;
         }
     };
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             const currentTime = Math.floor(Date.now() / 1000); 
             return exp < currentTime; 
         } catch (e) {
-            console.log('Erreur lors de la vérification de l\'expiration du token:', e);
+            showToast('error','Verification error','Erreur lors de la vérification de l\'expiration du token');
             return true; 
         }
     };
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
                 }
             }
         } catch (e) {
-            console.log('Erreur lors de la vérification du token:', e);
+            showToast('error','Verification error','Erreur lors de la vérification du token');
         } finally {
             setIsLoading(false);
         }
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(true);
             scheduleLogout(token); 
         } catch (e) {
-            console.log('Erreur lors de la sauvegarde du token:', e);
+            showToast('error','Save error','Erreur lors de la sauvegarde du token.');
         }
     };
 
@@ -106,7 +106,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             if (logoutTimeout) clearTimeout(logoutTimeout); 
         } catch (e) {
-            console.log('Erreur lors de la suppression du token:', e);
+            showToast('error','Deletion error','Erreur lors de la suppression du token.');
         }
     };
 
