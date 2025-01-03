@@ -4,6 +4,7 @@ import {
     updateEvent as APIUpdateEvent,
     checkEmails,
     createInvitation,
+    deleteEvent as APIDeleteEvent
 } from '../API/index'
 import { showToast } from '../utils/utils';
 
@@ -13,6 +14,7 @@ export const FETCH_CATEGORIES_FAILURE = 'FETCH_CATEGORIES_FAILURE';
 
 export const CREATE_EVENT_SUCCESS = 'CREATE_EVENT_SUCCESS';
 export const UPDATE_EVENT_SUCCESS = 'UPDATE_EVENT_SUCCESS';
+export const DELETE_EVENT_SUCCESS = 'DELETE_EVENT_SUCCESS';
 
 
 export const fetchCategories = () => async(dispatch) => {
@@ -61,5 +63,14 @@ export const updateEvent = (eventData,emailList) => async (dispatch) => {
 
     } catch (error) {
         showToast('error', 'Update error', 'An error occurred while updating the event. Please try later.');
+    }
+};
+
+export const deleteEvents = (eventData) => async (dispatch) => {
+    try {
+        const deleteEvent = await APIDeleteEvent(eventData);
+        dispatch({type : DELETE_EVENT_SUCCESS, payload: deleteEvent});
+    } catch (error) {
+        showToast('error', 'Deletion error', 'An error occurred while deleting the event. Please try later.');
     }
 };

@@ -4,6 +4,7 @@ import {
     FETCH_CATEGORIES_FAILURE,
     CREATE_EVENT_SUCCESS,
     UPDATE_EVENT_SUCCESS,
+    DELETE_EVENT_SUCCESS,
 } from '../actions/eventActions';
 
 

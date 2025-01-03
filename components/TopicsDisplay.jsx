@@ -106,15 +106,13 @@ export default function TopicsDisplay({ event, currentUser }) {
     return (
         <View style={stylesTopicsDisplay.container}>
             <DiscussionHeader title={event.title} />
+            
             <View style={stylesTopicsDisplay.titleContainer}>
                 <Text style={stylesTopicsDisplay.title}>Topics</Text>
             </View>
 
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                style={stylesTopicsDisplay.scrollContainer}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
-            >
+            <ScrollView showsHorizontalScrollIndicator={false} style={stylesTopicsDisplay.scrollContainer}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}>
                 <View style={stylesTopicsDisplay.content}>
                     {content}
                 </View>

@@ -35,17 +35,17 @@ export default function MessageInput({ currentUser, discussionID, is_writable,ev
         <>
             {(eventcreatorusername === currentUser.user_name || is_writable) &&(
                 <View style={stylesMessageInput.container}>
-                <TextInput
-                    style={stylesMessageInput.input}
-                    placeholder="Type your message..."
-                    value={messageContent}
-                    onChangeText={setMessageContent}
-                    onSubmitEditing={() => postData()} 
-                />
-                <TouchableOpacity style={stylesMessageInput.button} onPress={() => postData()}>
-                    <Text style={stylesMessageInput.buttonText}>Send</Text>
-                </TouchableOpacity>
-            </View>
+                    <TextInput
+                        style={stylesMessageInput.input}
+                        placeholder="Type your message..."
+                        value={messageContent}
+                        onChangeText={setMessageContent}
+                        onSubmitEditing={() => postData()} 
+                    />
+                    <TouchableOpacity style={stylesMessageInput.button} onPress={() => postData()}>
+                        <Text style={stylesMessageInput.buttonText}>Send</Text>
+                    </TouchableOpacity>
+                </View>
             )}
         </>
     );

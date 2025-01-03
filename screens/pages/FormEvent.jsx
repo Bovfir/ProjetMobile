@@ -20,6 +20,7 @@ import { uploadImage as APIUploadImage,} from '../../API/index';
 import { fetchCategories, createEvent, updateEvent } from '../../actions/eventActions';
 import { useDispatch, useSelector } from 'react-redux';
 
+
 export default function FormEvent() {
     const [refreshing, setRefreshing] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -151,30 +152,17 @@ export default function FormEvent() {
     };
 
     return (
-        <Formik
-            initialValues={formikInitialValues}
-            validationSchema={validationSchema}
-            onSubmit={(values) => handleEventSubmit(values)}
-        >
-            {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-            }) => (
+        <Formik initialValues={formikInitialValues} validationSchema={validationSchema} onSubmit={(values) => handleEventSubmit(values)}>
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue}) => (
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
                     <Header title="Event Form" notificationButton={true} navigation={navigation} backButton={true} />
-                    <ScrollView
-                        showsVerticalScrollIndicator={true}
-                        style={{ flex: 1 }}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
-                    >
+                    <ScrollView showsVerticalScrollIndicator={true} style={{ flex: 1 }}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}>
+                        
                         <View style={styleFormEvent.viewCreateText}>
                             <Text style={styleFormEvent.createEvent}>Create Event</Text>
                         </View>
+
                         <EventImageSelector 
                             event={event}
                             selectedImage={selectedImage}
