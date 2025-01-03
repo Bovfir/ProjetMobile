@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }) => {
         });
 
         return () => {
-            clearTimeout(logoutTimeout); // Nettoyer le timeout à la fin
+            clearTimeout(logoutTimeout);
             unsubscribe();
         };
     }, []);
@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await AsyncStorage.setItem('jwtToken', token);
             setIsAuthenticated(true);
-            scheduleLogout(token); // Planifier la déconnexion après connexion
+            scheduleLogout(token); 
         } catch (e) {
             console.log('Erreur lors de la sauvegarde du token:', e);
         }
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await AsyncStorage.removeItem('jwtToken');
             setIsAuthenticated(false);
-            if (logoutTimeout) clearTimeout(logoutTimeout); // Nettoyer le timeout en cas de logout manuel
+            if (logoutTimeout) clearTimeout(logoutTimeout); 
         } catch (e) {
             console.log('Erreur lors de la suppression du token:', e);
         }
