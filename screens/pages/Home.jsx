@@ -16,6 +16,7 @@ import { getNbSubscribers as APIGetNbSubscribers} from '../../API/index';
 import { ratioEvent as APIRatioEvent} from '../../API/index';
 import LocationRequest from "../../components/Location";
 import { useNavigation } from '@react-navigation/native';
+import { showToast } from '../../utils/utils';
 
 export default function Home(){
     const [fontLoaded, setFonsLoaded] = useState(false);
@@ -38,40 +39,44 @@ export default function Home(){
     const {location, city, erroMsg} = LocationRequest();
     
     const fetchData = async() => {
-        setLoading(true);
-        const eventsResponse = await APIGetNbEvents(1);
-        setEvents(eventsResponse);
-        const eventsForYouResponse = await APIGetNbEvents(2);
-        setEventForYou(eventsForYouResponse);
-        const categoriesResponse = await APIGetAllCategories();
-        setCategories(categoriesResponse);
+        try {
+            setLoading(true);
+            const eventsResponse = await APIGetNbEvents(1);
+            setEvents(eventsResponse);
+            const eventsForYouResponse = await APIGetNbEvents(2);
+            setEventForYou(eventsForYouResponse);
+            const categoriesResponse = await APIGetAllCategories();
+            setCategories(categoriesResponse);
 
-        const nbSubscribedForEachEventUpComingEventPromises = eventsResponse.map(async (item) => {
-            const response = await APIGetNbSubscribers(item.id);
-            return {id: item.id, subscribers: Number(response.count)}; 
-        });
+            const nbSubscribedForEachEventUpComingEventPromises = eventsResponse.map(async (item) => {
+                const response = await APIGetNbSubscribers(item.id);
+                return {id: item.id, subscribers: Number(response.count)}; 
+            });
 
-        const nbSubscribedForEachEventForYouPromises = eventsForYouResponse.map(async (item) => {
-            const response = await APIGetNbSubscribers(item.id);
-            return {id: item.id, subscribers: Number(response.count)}; 
-        });
+            const nbSubscribedForEachEventForYouPromises = eventsForYouResponse.map(async (item) => {
+                const response = await APIGetNbSubscribers(item.id);
+                return {id: item.id, subscribers: Number(response.count)}; 
+            });
 
-        const ratioUpComingEventsPromises = eventsResponse.map(async (item) => {
-            const response = await APIRatioEvent(item.id);
-            return {id: item.id, ratio : response};
-        });
+            const ratioUpComingEventsPromises = eventsResponse.map(async (item) => {
+                const response = await APIRatioEvent(item.id);
+                return {id: item.id, ratio : response};
+            });
 
-        const ratioForYouEventsPromises = eventsForYouResponse.map(async (item) => {
-            const response = await APIRatioEvent(item.id);
-            return {id: item.id, ratio : response};
-        });
+            const ratioForYouEventsPromises = eventsForYouResponse.map(async (item) => {
+                const response = await APIRatioEvent(item.id);
+                return {id: item.id, ratio : response};
+            });
 
-        setRatioUpComingEvents(await Promise.all(ratioUpComingEventsPromises));
-        setRatioForYouEvents(await Promise.all(ratioForYouEventsPromises));
-        setNbSubscribedForEachEventUpComingEvent(await Promise.all(nbSubscribedForEachEventUpComingEventPromises));
-        setNbSubscribedForEachEventForYou(await Promise.all(nbSubscribedForEachEventForYouPromises));
-        
+            setRatioUpComingEvents(await Promise.all(ratioUpComingEventsPromises));
+            setRatioForYouEvents(await Promise.all(ratioForYouEventsPromises));
+            setNbSubscribedForEachEventUpComingEvent(await Promise.all(nbSubscribedForEachEventUpComingEventPromises));
+            setNbSubscribedForEachEventForYou(await Promise.all(nbSubscribedForEachEventForYouPromises));
+    } catch (error) {
+        showToast('error','Error data',`An error has occurred. Please try later.`);
+    } finally {
         setLoading(false);
+    }
     };
 
     useFocusEffect(

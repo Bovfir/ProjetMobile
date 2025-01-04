@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, ScrollView, Pressable, RefreshControl, Image } from 'react-native';
+import { Text, View, ScrollView, Pressable, RefreshControl } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { styleFormEvent } from '../../styles/stylesFormEvent';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -16,10 +16,11 @@ import { showToast } from '../../utils/utils';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import EventImageSelector from '../../components/EventImageSelector';
-import { formatDate } from '../../utils/utils';
-import { uploadImage as APIUploadImage,} from '../../API/index';
+import { uploadImage as APIUploadImage,checkInvitation} from '../../API/index';
 import { fetchCategories, createEvent, updateEvent } from '../../actions/eventActions';
 import { useDispatch, useSelector } from 'react-redux';
+import { TextInput } from 'react-native-paper';
+
 
 export default function FormEvent() {
     const [refreshing, setRefreshing] = useState(false);
@@ -32,13 +33,16 @@ export default function FormEvent() {
     const {categories, loading} = useSelector((state) => state.event);
     
     const route = useRoute();
-    const {event,eventID, eventUpdated} = route.params || {};
+    const {event,eventID,type, eventUpdated} = route.params || {};
 
     const navigation = useNavigation();
 
     const onRefresh = async () => {
         setRefreshing(true);
         dispatch(fetchCategories());
+        if(type === 'update' && event.description){
+            setShowDescriptionInput(true);
+        }
         setRefreshing(false);
     };
 
@@ -65,76 +69,110 @@ export default function FormEvent() {
         eventStart: Yup.date().required('Start date is required'),
         eventEnd: Yup.date().required('End date is required'),
     });
-
     const formikInitialValues = {
-        image: event ? event.picture_path : null,  
-        nameEvent: event ? event.title : '',  
-        location: event ? event.street_number : '',  
-        description: event ? event.description : '',  
-        eventStart: event ? new Date(event.event_start) : new Date(),  
-        eventEnd: event ? new Date(event.event_end) : new Date(),  
-        timeStart: event ? new Date(event.event_start) : new Date(),  
-        timeEnd: event ? new Date(event.event_end) : new Date(),  
-        selectedType: event ? event.is_private : false,  
+        image: event ? event.picture_path : null,
+        nameEvent: event ? event.title : '',
+        location: event ? event.street_number : '',
+        description: event ? event.description : '',
+        eventStart: event && event.event_start ? event.event_start.split(' ')[0] : new Date().toISOString().split('T')[0],
+        eventEnd: event && event.event_end ? event.event_end.split(' ')[0] : new Date().toISOString().split('T')[0],
+        timeStart: event && event.event_start 
+            ? event.event_start.split(' ')[1].slice(0, 5) 
+            : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timeEnd: event && event.event_end 
+            ? event.event_end.split(' ')[1].slice(0, 5) 
+            : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        selectedType: event ? event.is_private : false,
         selectedCategory: selectedCategory || (categories.length ? categories[0].id : null),
     };
+    
+    
 
     const handleEventSubmit = async (values) => {
-        const isUpdate = event && event.id; 
-        let updatedData = {};
+        try {
+            const isUpdate = event && event.id; 
+            let updatedData = {};
 
-        const fieldsToCompare = [
-            { key: 'nameEvent', field: 'title' },
-            { key: 'description', field: 'description' },
-            { key: 'location', field: 'street_number' },
-            { key: 'selectedType', field: 'is_private' },
-            { key: 'eventStart', field: 'event_start', transform: (val) => formatDate(val) },
-            { key: 'eventEnd', field: 'event_end', transform: (val) => formatDate(val) },
-        ];
+            const fieldsToCompare = [
+                { key: 'nameEvent', field: 'title' },
+                { key: 'description', field: 'description' },
+                { key: 'location', field: 'street_number' },
+                { key: 'selectedType', field: 'is_private' },
+            ];
 
-        fieldsToCompare.forEach(({ key, field, transform }) => {
-            const newValue = values[key];
-            const oldValue = event ? event[field] : null;
-            const transformedValue = transform ? transform(newValue) : newValue;
+            fieldsToCompare.forEach(({ key, field, transform }) => {
+                const newValue = values[key];
+                const oldValue = event ? event[field] : null;
+                const transformedValue = transform ? transform(newValue) : newValue;
 
-            if (newValue !== oldValue) {
-                updatedData[field] = transformedValue;
+                if (newValue !== oldValue) {
+                    updatedData[field] = transformedValue;
+                }
+            });
+
+            if (selectedImage && selectedImage !== event?.picture_path) {
+                updatedData.picture_path = await APIUploadImage({ imageUri: selectedImage });
             }
-        });
 
-        if (selectedImage && selectedImage !== event?.picture_path) {
-            updatedData.picture_path = await APIUploadImage({ imageUri: selectedImage });
-        }
+            updatedData = {
+                ...updatedData,
+                category_id: selectedCategory,
+                location_id: 1, 
+                id: eventID,
+                event_start: `${values.eventStart} ${values.timeStart}`,
+                event_end: `${values.eventEnd} ${values.timeEnd}`
+            };
 
-        updatedData = {
-            ...updatedData,
-            category_id: selectedCategory,
-            location_id: 1, 
-            id: eventID
-        };
+            if (isUpdate) {
+                dispatch(updateEvent(updatedData,emailList));
+                showToast('success', 'Event updated successfully', 'Your event has been updated.');
+            } else {
+                dispatch(createEvent(updatedData, emailList));
+                showToast('success', 'Event created successfully', 'Your event is now available.');
+            }
 
-        if (isUpdate) {
-            dispatch(updateEvent(updatedData,emailList));
-            showToast('success', 'Event updated successfully', 'Your event has been updated.');
+            navigation.navigate('MyEventCreated',{eventUpdated: true});
+    } catch (error) {
+        if(error.status === 400){
+            showToast('error',`Error : ${error.message}`,'Please upload an another value.');
         } else {
-            dispatch(createEvent(updatedData, emailList));
-            showToast('success', 'Event created successfully', 'Your event is now available.');
+            showToast('error','Error','Something went wrong. Please try again later.');
         }
-
-        navigation.navigate('FormEvent',{eventUpdated: true});
+    }
     };
     
-    const handleAddEmail = () => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (emailRegex.test(emailInput)) {
-            if (!emailList.includes(emailInput.toLocaleLowerCase())) {
-                setEmailList([...emailList, emailInput.toLocaleLowerCase()]);
-                setEmailInput('');
+    const handleAddEmail = async () => {
+        try {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (emailRegex.test(emailInput)) {
+                let exist;
+                if(type === 'update'){
+                    exist = await checkInvitation({ email: emailInput.toLowerCase(), event_id: event.id });
+                }
+    
+                if (exist) {
+                    showToast('error', 'Email Exists', 'This email is already linked to the event.');
+                } else if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
             } else {
-                showToast('error','Error : Email already added.','This email has already been added.')
+                showToast('error', 'Invalid Email', 'The email format is incorrect.');
             }
-        } else {
-            showToast('error','Error : Invalid email.','The email format is incorrect.')
+        } catch (error) {
+            if (error.status === 404) {
+                if (!emailList.includes(emailInput.toLowerCase())) {
+                    setEmailList([...emailList, emailInput.toLowerCase()]);
+                    setEmailInput('');  
+                } else {
+                    showToast('error', 'Duplicate Email', 'This email has already been added.');
+                }
+            } else {
+                showToast('error', 'Error', 'An error occurred while checking the email.');
+            }
         }
     };
 
@@ -143,30 +181,17 @@ export default function FormEvent() {
     };
 
     return (
-        <Formik
-            initialValues={formikInitialValues}
-            validationSchema={validationSchema}
-            onSubmit={(values) => handleEventSubmit(values)}
-        >
-            {({
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                values,
-                errors,
-                touched,
-                setFieldValue,
-            }) => (
+        <Formik initialValues={formikInitialValues} validationSchema={validationSchema} onSubmit={(values) => handleEventSubmit(values)}>
+            {({ handleChange, handleBlur, handleSubmit, values, errors, touched, setFieldValue}) => (
                 <View style={{ flex: 1, backgroundColor: 'white' }}>
                     <Header title="Event Form" notificationButton={true} navigation={navigation} backButton={true} />
-                    <ScrollView
-                        showsVerticalScrollIndicator={true}
-                        style={{ flex: 1 }}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
-                    >
+                    <ScrollView showsVerticalScrollIndicator={true} style={{ flex: 1 }}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}>
+                        
                         <View style={styleFormEvent.viewCreateText}>
                             <Text style={styleFormEvent.createEvent}>Create Event</Text>
                         </View>
+
                         <EventImageSelector 
                             event={event}
                             selectedImage={selectedImage}
@@ -187,35 +212,33 @@ export default function FormEvent() {
                         />
                         <HelperTextField touched={touched} errors={errors} fieldName={"nameEvent"} style={styleFormEvent.helpText}/>
 
-                        <View style={styleFormEvent.viewDescription}>
-                            <Pressable onPress={() => setShowDescriptionInput(!showDescriptionInput)}>
+                        <View style={styleFormEvent.containerName}>
+                            <Pressable onPress={() => {setShowDescriptionInput(!showDescriptionInput); values.description = ''}} style={styleFormEvent.toggleDescriptionButton}>
                                 <View style={styleFormEvent.row}>
                                     {showDescriptionInput ? (
                                         <>
-                                            <AntDesign name="minus" size={16} color="#4B0082" />
+                                            <AntDesign name="minus" size={16} color="#4B0082" style={{marginLeft: 30,}}/>
                                             <Text style={styleFormEvent.addDescription}>Remove Description</Text>
                                         </>
                                     ) : (
                                         <>
-                                            <AntDesign name="plus" size={16} color="#4B0082" />
+                                            <AntDesign name="plus" size={16} color="#4B0082" style={{marginLeft: 30,}}/>
                                             <Text style={styleFormEvent.addDescription}>Add Description</Text>
                                         </>
                                     )}
                                 </View>
                             </Pressable>
                             {showDescriptionInput && (
-                                <View style={styleFormEvent.textInputContainerDescription}>
-                                    <TextInputForm
-                                        placeholder="Enter a description..."
-                                        onChangeText={handleChange('description')}
-                                        onBlur={handleBlur('description')}
-                                        value={values.description}
-                                        styles={styleFormEvent}
-                                        multiline={true}
-                                    />
-                                </View>
+                                <TextInputForm
+                                    value={values.description}
+                                    placeholder="Enter a description..."
+                                    onChangeText={handleChange('description')}
+                                    onBlur={handleBlur('description')}
+                                    styles={styleFormEvent}
+                                />
                             )}
                         </View>
+
 
                         <DateTimeSelector
                             eventStart={values.eventStart}

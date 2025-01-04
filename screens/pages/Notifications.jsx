@@ -1,4 +1,4 @@
-import { Text, View, FlatList, Image} from 'react-native';
+import { View, FlatList, Image} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {stylesNotification} from '../../styles/stylesNotification';
 import {Notification} from '../../components/Notification'
@@ -7,6 +7,7 @@ import { Header } from '../../components/Header';
 import { SegmentedButtons } from 'react-native-paper';
 import * as API from '../../API/index';
 import { useNavigation } from '@react-navigation/native';
+import { showToast } from '../../utils/utils';
 
 export default function  Notifications(){
     const [selected, setSelected] = useState('first');
@@ -31,7 +32,7 @@ export default function  Notifications(){
           }
 
       } catch (error) {
-        console.error("Erreur lors du rafraîchissement :", error);
+        showToast('error','Refresh error','Error while refreshing.');
       } finally {
         setRefreshing(false);
       }
@@ -76,6 +77,7 @@ export default function  Notifications(){
       }
 
     const getInvitation = async () =>{
+      try {
         if(page === 1){
             const response = await API.getInvitation(page);
             setData(response.invitation)
@@ -85,24 +87,31 @@ export default function  Notifications(){
             setData((data) => [...data,...response.invitation]);
             setNbRows(response.nbRows);
         }
+      } catch (error) {
+        showToast('error','Getting error','An error occurred while getting the invitation.');
+      }
     }
     const getNotification = async () =>{
-        if(page === 1){
-            const response = await API.getNotification(page);
-            setData(response.notification)
-            setNbRows(response.nbRows);
-        }else if(page <= getNbTotalPage()){
-            const response = await API.getNotification(page);
-            setData((data) => [...data,...response.invitation]);
-            setNbRows(response.nbRows);
-        }
+      try {
+          if(page === 1){
+              const response = await API.getNotification(page);
+              setData(response.notification)
+              setNbRows(response.nbRows);
+          }else if(page <= getNbTotalPage()){
+              const response = await API.getNotification(page);
+              setData((data) => [...data,...response.invitation]);
+              setNbRows(response.nbRows);
+          }
+      } catch (error) {
+        showToast('error','Getting error','An error occurred while getting the notification.');
+      }
     }
 
     const renderItem = ({ item }) => {
         if (selected === "first") {
           return <Notification key={item.id} item={item} />;
         }
-        return <Invitation key={item.id} item={item} />;
+        return <Invitation key={item.id} item={item}/>;
       };
     
       return (

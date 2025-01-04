@@ -13,12 +13,7 @@ export default function InvitationInput({emailList,emailInput, setEmailInput, ha
 
             <ScrollView horizontal contentContainerStyle={styles.scrollContainerInvitation} showsHorizontalScrollIndicator={false} style={{ marginLeft: 30 }}>
                 {emailList.map((email, index) => (
-                    <Chip
-                        key={index}
-                        style={styles.chip}
-                        textStyle={styles.chipText}
-                        onClose={() => handleRemoveEmail(email)}
-                    >
+                    <Chip key={index} style={styles.chip} textStyle={styles.chipText} onClose={() => handleRemoveEmail(email)}>
                         {email}
                     </Chip>
                 ))}

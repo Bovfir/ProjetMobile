@@ -18,6 +18,7 @@ export const Message = ({ user, content, isCurrentUser }) => {
                     </View>
                 </View>
             </View>
+            
         </View>
     );
 };

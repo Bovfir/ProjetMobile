@@ -31,7 +31,11 @@ export default function Connection(){
                 showToast('error','Connection error',`${response}`);
             }
         } catch (error) {
-            showToast('error','Connection error','An error has occurred. Please try later.');
+            if(error.status === 404){
+                showToast('error','Connection failed','Email or Password incorrect. Please try again.');
+            } else {
+                showToast('error','Connection error','An error has occurred. Please try later.');
+            }
         }
     }
 
@@ -40,8 +44,7 @@ export default function Connection(){
         <View style={stylesLogin.container}>
             <Header title={'EventFlow'} titleSize={41} subTitle={'Where event come to life'} subTitleSize={15} distanceTop={200}/>
             <Toast/>
-            <Formik
-                initialValues={{email:"", password:""}}
+            <Formik initialValues={{email:"", password:""}}
                 validationSchema={Yup.object({
                     email:Yup.string().email('Invalid email').required('Required'),
                     password:Yup.string().required('Required')

@@ -8,13 +8,12 @@ const PickImage = async ({ onSelectedImage, type = 'event' }) => {
         return;
     }
 
-    // Définir l'aspect ratio selon le type
     const aspectRatio = type === 'avatar' ? [1, 1] : [4, 3];
 
     const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsEditing: true, 
-        aspect: aspectRatio, // Utiliser l'aspect ratio pour le crop
+        aspect: aspectRatio,
         quality: 1,
     });
 

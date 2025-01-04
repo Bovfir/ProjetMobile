@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
 
 export default function LocationRequest() {
@@ -8,14 +8,13 @@ export default function LocationRequest() {
 
   useEffect(() => {
     (async () => {
-      // Demander la permission
+
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission de localisation refusée');
         return;
       }
 
-      // Obtenir la localisation actuelle
       let loc = await Location.getCurrentPositionAsync({});
       setLocation(loc);
 

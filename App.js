@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons, MaterialCommunityIcons,Feather, MaterialIcons, FontAwesome } from '@expo/vector-icons'; 
+import { Ionicons, MaterialCommunityIcons,Feather, FontAwesome } from '@expo/vector-icons'; 
 import { AuthProvider, AuthContext } from "./utils/AuthContext";
 import HomeNavigator from './screens/Navigator/HomeNavigator';
 import MyEventNavigator from "./screens/Navigator/MyEventNavigator";
@@ -132,9 +132,7 @@ const toastConfig = {
   ),
 };
 
-
-
-export default function App() {
+export default function App(){
     return (
       <Provider store={store}>
       <AuthProvider>

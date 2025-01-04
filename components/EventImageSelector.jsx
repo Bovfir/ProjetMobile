@@ -19,15 +19,9 @@ const EventImageSelector = ({ event, selectedImage, setSelectedImage, setFieldVa
           }
         >
           {selectedImage ? (
-            <Image
-              source={{ uri: selectedImage }}
-              style={{ width: 305, height: 135, borderRadius: 10 }}
-            />
+            <Image source={{ uri: selectedImage }} style={{ width: 305, height: 135, borderRadius: 10 }}/>
           ) : event?.picture_path ? (
-            <Image
-              source={{ uri: `${URLImage}/${event.picture_path}` }}
-              style={{ width: 305, height: 135, borderRadius: 10 }}
-            />
+            <Image source={{ uri: `${URLImage}/${event.picture_path}` }} style={{ width: 305, height: 135, borderRadius: 10 }}/>
           ) : (
             <MaterialIcons name="add-a-photo" size={50} color="#E7E1E1" />
           )}

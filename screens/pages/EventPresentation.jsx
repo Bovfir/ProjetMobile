@@ -18,6 +18,7 @@ import { Header } from "../../components/Header";
 import IconComponents from '../../utils/IconComponents';
 import { URLImage } from "../../API/APIUrl";
 import { formatDateToReadable, formatTimeRange } from "../../utils/utils";
+import { showToast } from "../../utils/utils";
 
 export default function EventPresentation({ route }) {
     const [refreshing, setRefreshing] = useState(false);
@@ -40,7 +41,7 @@ export default function EventPresentation({ route }) {
             await APIFollowEvent(eventData.id);
             setIsFollow(true);
         } catch(error) {
-            console.log(error);
+            showToast('error','Follow error','An error occurred while subscribing to the event. Please try again later.');
         }
     };
 
@@ -49,7 +50,7 @@ export default function EventPresentation({ route }) {
             await APIUnFollowEvent(eventData.id);
             setIsFollow(false)
         } catch (error) {
-            console.log(error);
+            showToast('error','Unfollow error','An error occurred while unsubscribing from the event. Please try again later.');
         }
     }
 
@@ -76,10 +77,12 @@ export default function EventPresentation({ route }) {
             const nbSubscribersResponse = await APIGetNbSubscribers(eventID);
             setNbSubscribers(nbSubscribersResponse);
             
-            setLoad({loaded: false,loading: false,error: false,errorMessage: ''});
+            
         } catch(error) {
-            setLoad({loaded: true,loading: false,error: true,errorMessage: error.message});
-            console.log(error);
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
+        } finally {
+            setLoad({loaded: false,loading: false,error: false,errorMessage: ''});
         }
     }
     useFocusEffect(
@@ -99,7 +102,7 @@ export default function EventPresentation({ route }) {
             if(load.loading) {
                 setLoad(prev => ({...prev, loading: false, loaded: true}));
             }
-        }, 3000);
+        }, 1000);
         return () => clearTimeout(timer);
     },[load.loading])
 
@@ -119,27 +122,13 @@ export default function EventPresentation({ route }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white'}}>
-            <Header
-                title={"Details"}
-                subTitle={"Event"}
-                backButton={true}
-                notificationButton={true}
-                navigation={navigation}
-            />
-            <ScrollView
-                showsVerticalScrollIndicator={true}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />
-                }
-                contentContainerStyle={{ paddingBottom: 100 }} 
-            >
+            <Header title={"Details"} subTitle={"Event"} backButton={true} notificationButton={true} navigation={navigation}/>
+            <ScrollView showsVerticalScrollIndicator={true} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
+                contentContainerStyle={{ paddingBottom: 100 }}>
                 <View style={stylesEventPresentation.container}>
     
                     <Card style={stylesEventPresentation.cardImage}>
-                        <Card.Cover
-                            style={stylesEventPresentation.cardCover}
-                            source={{ uri: `${URLImage}/${eventData.picture_path}` }}
-                        />
+                        <Card.Cover style={stylesEventPresentation.cardCover} source={{ uri: `${URLImage}/${eventData.picture_path}`}}/>
                         <View style={stylesEventPresentation.imageOverlay}>
                             <IconComponent name={categoryData.icon_name} size={15} color="#FFFFFF" />
                             <Text style={stylesEventPresentation.overlayText}>{categoryData.title}</Text>
@@ -153,10 +142,7 @@ export default function EventPresentation({ route }) {
                     <Card style={stylesEventPresentation.containerUser}>
                         <View style={stylesEventPresentation.contentWrapper}>
                             <Text style={stylesEventPresentation.textUser}>By {userData.user_name}</Text>
-                            <Avatar.Image
-                                size={35}
-                                source={{ uri: `${URLImage}/${userData.picture_path}` }}
-                            />
+                            <Avatar.Image size={35} source={{ uri: `${URLImage}/${userData.picture_path}`}}/>
                         </View>
                     </Card>
     
@@ -227,5 +213,4 @@ export default function EventPresentation({ route }) {
             </View>
         </View>
     );
-    
 };

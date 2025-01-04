@@ -8,6 +8,7 @@ import {CardEvent} from '../../components/CardEvent';
 import { styleCard } from '../../styles/stylesCard';
 import { Checkbox } from 'react-native-paper';
 import * as APIConnection from '../../API/index';
+import { showToast } from '../../utils/utils';
 
 export default function Explore() {
     const navigation = useNavigation();
@@ -57,30 +58,35 @@ export default function Explore() {
     }
 
     const fetchDataPaging = async ()=>{
-      if(page.current <= getNbTotalPage()){
-      const response = await APIConnection.getDataBySearchAndCategories(page.current,selectedFilters,search);
-      const categoriesList = await APIConnection.getAllCategories();
-      categories.current = categoriesList
-      data.current = [...data.current, ...response.events];
+      try {
+        if(page.current <= getNbTotalPage()){
+        const response = await APIConnection.getDataBySearchAndCategories(page.current,selectedFilters,search);
+        const categoriesList = await APIConnection.getAllCategories();
+        categories.current = categoriesList
+        data.current = [...data.current, ...response.events];
 
-      nbRows.current = response.nbRows;
-      page.current += 1;
+        nbRows.current = response.nbRows;
+        page.current += 1;
 
-      const nbSubscribedForEachEventForYouPromises = data.current.map(async (item) => {
-          const response = await APIConnection.getNbSubscribers(item.id);
-          return {id: item.id, subscribers: Number(response.count)}; 
-      });
+        const nbSubscribedForEachEventForYouPromises = data.current.map(async (item) => {
+            const response = await APIConnection.getNbSubscribers(item.id);
+            return {id: item.id, subscribers: Number(response.count)}; 
+        });
 
-      const ratioUpComingEventsPromises = data.current.map(async (item) => {
-          const response = await APIConnection.ratioEvent(item.id);
-          return {id: item.id, ratio : response};
-      });
+        const ratioUpComingEventsPromises = data.current.map(async (item) => {
+            const response = await APIConnection.ratioEvent(item.id);
+            return {id: item.id, ratio : response};
+        });
 
-      setRatio(await Promise.all(ratioUpComingEventsPromises));
-      setNbSubscribed(await Promise.all(nbSubscribedForEachEventForYouPromises));
-      }else{
-        setNoMore(true);
-      }
+        setRatio(await Promise.all(ratioUpComingEventsPromises));
+        setNbSubscribed(await Promise.all(nbSubscribedForEachEventForYouPromises));
+        }else{
+          setNoMore(true);
+        }
+    } catch(error){
+        showToast('error','Error data','An error has occurred. Please try later.');
+        navigation.goBack();
+    }
     }
 
 

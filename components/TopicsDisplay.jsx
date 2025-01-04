@@ -47,17 +47,16 @@ export default function TopicsDisplay({ event, currentUser }) {
                 usepicturepaths: discussion.usepicturepaths,
                 lastmessageuserinfo: discussion.lastmessageuserinfo
             })));
-
-            setLoad({ loading: false, error: false, errorMessage: '' });
         } catch (error) {
-            console.error(error);
-            setLoad({ loading: false, error: true, errorMessage: error.message });
+            showToast('error','Recovery error','Something went wrong. Please try again later.');
+            navigation.goBack();
+        } finally {
+            setLoad({ loading: false, error: false, errorMessage: '' });
         }
     };
 
     const handleCreateDiscussion = async () => {
         try {
-            console.log('Creating discussion:', newDiscussionTitle, 'User can write:', userCanWrite);
             await createDiscussion({event_id: event.id, is_writable: userCanWrite, title: newDiscussionTitle});
             showToast("success","Created discussion","The discussion was successfully created.");
             setModalVisible(false);
@@ -107,23 +106,23 @@ export default function TopicsDisplay({ event, currentUser }) {
     return (
         <View style={stylesTopicsDisplay.container}>
             <DiscussionHeader title={event.title} />
+            
             <View style={stylesTopicsDisplay.titleContainer}>
                 <Text style={stylesTopicsDisplay.title}>Topics</Text>
             </View>
 
-            <ScrollView
-                showsHorizontalScrollIndicator={false}
-                style={stylesTopicsDisplay.scrollContainer}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}
-            >
+            <ScrollView showsHorizontalScrollIndicator={false} style={stylesTopicsDisplay.scrollContainer}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#4B0082']} />}>
                 <View style={stylesTopicsDisplay.content}>
                     {content}
                 </View>
             </ScrollView>
 
-            <Card style={stylesTopicsDisplay.buttonPlus} onPress={() => setModalVisible(true)}>
-                <AntDesign name="plus" color={"white"} size={30} />
-            </Card>
+            {currentUser.id === event.user_id && (
+                <Card style={stylesTopicsDisplay.buttonPlus} onPress={() => setModalVisible(true)}>
+                    <AntDesign name="plus" color={"white"} size={30} />
+                </Card>
+            )}
 
             <Modal visible={modalVisible} animationType="fade" transparent={true}
                 onRequestClose={() => setModalVisible(false)}>
@@ -137,7 +136,13 @@ export default function TopicsDisplay({ event, currentUser }) {
                             placeholder="Enter discussion title"
                             value={newDiscussionTitle}
                             onChangeText={setNewDiscussionTitle}
+                            error={!newDiscussionTitle.trim()}
                         />
+                        {newDiscussionTitle.trim() === '' && (
+                            <Text style={{ color: 'red', marginBottom: 10 }}>
+                                Discussion title is required.
+                            </Text>
+                        )}
 
                         <View style={stylesTopicsDisplay.switchContainer}>
                             <Text style={stylesTopicsDisplay.switchLabel}>User can write:</Text>
@@ -149,7 +154,7 @@ export default function TopicsDisplay({ event, currentUser }) {
                         </View>
                         <View style={stylesTopicsDisplay.buttonContainer}>
                             <Button title="Cancel" onPress={() => setModalVisible(false)} />
-                            <Button title="Create" onPress={handleCreateDiscussion} />
+                            <Button title="Create" onPress={handleCreateDiscussion} disabled={!newDiscussionTitle} />
                         </View>
                     </View>
                 </View>

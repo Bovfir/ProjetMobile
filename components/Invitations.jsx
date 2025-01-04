@@ -1,18 +1,27 @@
 import {Text, Button} from "react-native-paper";
-import { useState, useEffect } from "react";
 import {stylesNotification} from '../styles/stylesNotification'
 import { View, Image } from "react-native";
 import * as API from '../API/index';
 import { URLImage } from "../API/APIUrl";
+import { showToast } from "../utils/utils";
 
 
 export function Invitation({item}) {
 
     const handleDecline = async ()=>{
-      await API.declineInvitation(item.event_id)
+      try {
+        await API.declineInvitation(item.event_id);
+        getInvitation()
+      } catch (error) {
+        showToast('error','Decline error','An error occurred while declining the invitation');
+      }
     }
     const handleAccept = async () => {
-      await API.acceptInvitation(item.event_id)
+      try {
+        await API.acceptInvitation(item.event_id);
+      } catch (error) {
+        showToast('error','Accept error','An error occurred while accepting the invitation');
+      }
     }
 
     return (
