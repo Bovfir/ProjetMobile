@@ -27,22 +27,38 @@ export default function MyEvent() {
   const fetchData = async () => {
     try {
       setLoading(true);
+  
       const eventsSubscribed = await APIGetEventCreatedOfUser();
-      const responseFavorite = await getFavorite(1);
-      const responseFollow = await searchLinkUserEvents(1);
+      const responseFavorite = await getFavorite(1); 
+      const responseFollow = await searchLinkUserEvents(1);  
+  
+      const updatedEvents = await Promise.all(
+        eventsSubscribed.map(async (event) => {
+          const isFavorite = responseFavorite.some((fav) => fav.event_id === event.id);
 
-      // Mettez à jour l'état avec les trois jeux de données
+          const isFollowed = responseFollow.some((follow) => follow.event_id === event.id);
+
+          return {
+            ...event,
+            isFavorite,
+            isFollowed,  
+          };
+        })
+      );
+  
       setEventsData({
-        events: eventsSubscribed,
-        favorites: responseFavorite,
-        followed: responseFollow,
+        events: updatedEvents,
+        favorites: responseFavorite, 
+        followed: responseFollow, 
       });
-
+  
       setLoading(false);
     } catch (error) {
       showToast('error', 'Recovery error', 'An error occurred while fetching the event. Please try later.');
+      setLoading(false);
     }
   };
+  
 
   useFocusEffect(
     useCallback(() => {
@@ -71,35 +87,23 @@ export default function MyEvent() {
     }
   };
 
-  const toggleFavoriteForEvent = (eventId) => {
-    // On met à jour un événement spécifique dans les favoris
-    setEventsData((prevData) => {
-      const updatedEvents = prevData.events.map((event) => {
-        if (event.id === eventId) {
-          // Met à jour l'état de 'isFavorite' pour l'événement concerné
-          const isFavorite = !event.isFavorite;
-          // Retourne l'événement mis à jour
-          return { ...event, isFavorite };
-        }
-        return event;
-      });
+  const fetchSingleEvent = (eventId) => {
+    setEventsData(prevData => {
+      const updatedEvents = prevData.events.map(event =>
+        event.id === eventId ? { ...event, isFavorite: !event.isFavorite } : event
+      );
   
-      // On met à jour aussi la liste des favoris si nécessaire
-      const updatedFavorites = prevData.favorites.map((fav) => {
-        if (fav.event_id === eventId) {
-          return { ...fav, is_favorite: !fav.is_favorite }; // Inverse l'état de 'is_favorite'
-        }
-        return fav;
-      });
+      const updatedFavorites = prevData.favorites.map(fav =>
+        fav.event_id === eventId ? { ...fav, is_favorite: !fav.is_favorite } : fav
+      );
   
       return {
         ...prevData,
-        events: updatedEvents,  // On remplace l'ancienne liste des événements
-        favorites: updatedFavorites, // On remplace l'ancienne liste des favoris
+        events: updatedEvents,
+        favorites: updatedFavorites,
       };
     });
   };
-  
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
@@ -153,7 +157,7 @@ export default function MyEvent() {
                   onRefresh={onRefresh}
                   isFollow={isFollow || false}
                   isFavorite={isFavorite || false}
-                  toggleFavoriteForEvent={toggleFavoriteForEvent}
+                  fetchSingleEvent={fetchSingleEvent}
                 />
               );
             })
