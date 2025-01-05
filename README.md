@@ -70,4 +70,4 @@ Une fois le build terminé, l'API sera lancée dans Docker.
 L'IP à laquelle l'API sera disponible est http://localhost:3001
 
 ### 2. Utilisation de l'API en ligne
-Utiliser l'adresse de l'API déployée en ligne : http://91.86.119.222:3000
+Utilisez l'adresse de l'API déployée en ligne : http://91.86.119.222:3000
