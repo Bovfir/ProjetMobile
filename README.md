@@ -56,16 +56,18 @@ npm run dev
 Assurez-vous de modifier le fichier `mobile/API/index.js` en remplaçant l’adresse IP par l’adresse locale fournie par l’API. Cette étape est essentielle pour garantir le bon fonctionnement de la partie mobile.  
 
 ## Alternatives
+Si l'installation de l'API en local ne fonctionne pas comme prévu, vous avez la possibilité de l'utiliser via deux alternatives :
+
 ### Alternatives 1
 https://www.swisstransfer.com/d/3fb1d142-0523-4c3b-97b2-93d61380522c
 Téléchargez et extrayez l'archive contenant le Dockerfile.
-Ouvrez un terminal, naviguez vers le répertoire extrait, et exécutez :
+Ouvrez un terminal, naviguez jusqu'au répertoire extrait, et exécutez :
 ```bash
 docker-compose build
 docker-compose up
 ```
-Une fois le build terminé, l'API sera lancée dans docker.
-L'ip à laquelle l'API sera disponible est http://localhost:3001
+Une fois le build terminé, l'API sera lancée dans Docker.
+L'IP à laquelle l'API sera disponible est http://localhost:3001
 
 ### Alternatives 2
 Utiliser l'adresse de l'API déployée en ligne : http://91.86.119.222:3000
