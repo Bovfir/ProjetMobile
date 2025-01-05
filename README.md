@@ -50,5 +50,8 @@ Démarrez le projet en mode développement avec la commande :
 ```bash
 npm run dev
 ```
-### 5. Partie Mobile 
-=> Attention à bien modifier le fichier mobile/API/index.js et de mettre l'ip locale que l'API vous renvoie.
+### 5. Partie Mobile  
+
+⚠️ **Attention :**  
+Assurez-vous de modifier le fichier `mobile/API/index.js` en remplaçant l’adresse IP par l’adresse locale fournie par l’API. Cette étape est essentielle pour garantir le bon fonctionnement de la partie mobile.  
+
