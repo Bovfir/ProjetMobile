@@ -308,6 +308,47 @@ export const uploadImage = async ({imageUri}) => {
     }
 };
 
+export const searchLinkUserEvents = async (page) => {
+    try {
+        const token = await getToken();
+        const response = await axios.get(`${URL}/linkuserevent/search/all/?page=${page}&perPage=${perPage}`, {
+            headers: {
+                'Authorization' : `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw {message : error.response.data, status: error.response.status};
+    }
+}
+
+export const setFavorite = async (data) => {
+    try {
+        const token = await getToken();
+        axios.patch(`${URL}/linkuserevent/setFavorite/`, data, {
+            headers: {
+                'Authorization' : `Bearer ${token}`
+            }
+        });
+    } catch (error){
+        throw {message : error.response.data, status: error.response.status};
+    }
+};
+
+export const getFavorite = async (page) => {
+    try {
+        const token = await getToken();
+        const response = await axios.get(`${URL}/linkuserevent/favorite/event/?page=${page}&perPage=${perPage}`, {
+            headers: {
+                'Authorization' : `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw {message : error.response.data, status: error.response.status};
+    }
+}
+
 export const getEventCreatedOfUser = async () => {
     try {
         const token = await getToken();

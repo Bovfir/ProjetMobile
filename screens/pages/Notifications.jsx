@@ -1,9 +1,9 @@
-import { View, FlatList, Image} from 'react-native';
+import { View, FlatList, Image } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import {stylesNotification} from '../../styles/stylesNotification';
-import {Notification} from '../../components/Notification'
-import { Invitation } from '../../components/Invitations';
-import { Header } from '../../components/Header';
+import { stylesNotification } from '../../styles/stylesNotification';
+import { Notification } from '../../components/Notification'
+import Invitation from '../../components/Invitations';
+import Header from '../../components/Header';
 import { SegmentedButtons } from 'react-native-paper';
 import * as API from '../../API/index';
 import { useNavigation } from '@react-navigation/native';

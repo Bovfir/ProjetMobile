@@ -1,13 +1,13 @@
 import { View, ScrollView, RefreshControl, Image } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useState,useCallback } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { style, stylesButton } from '../../styles/stylesMyEvent';
 import { Card } from 'react-native-paper';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute,useFocusEffect} from '@react-navigation/native';
 import CardEventWithOptions from '../../components/CardEventWithOptions';
 import SearchBar from '../../components/SearchBar';
 import EventTypeSelector from '../../components/EventTypeSelector';
-import { Header } from '../../components/Header';
+import Header from '../../components/Header';
 import { getEventCreatedOfUser as APIGetEventCreatedOfUser,searchEventAllFilterCreatedEvent } from '../../API/index';
 import {URL} from "../../API/APIUrl";
 import { showToast } from '../../utils/utils';
@@ -19,7 +19,6 @@ export default function MyEvent2() {
   const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
   const [selectedTypeEvent, setSelectedTypeEvent] = useState('created');
-  const route = useRoute();
 
   const fetchData = async () => {
     try {
@@ -32,20 +31,11 @@ export default function MyEvent2() {
     }
   };
 
-  useEffect(() => {
-    onRefresh();
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (route.params?.eventUpdated) {
-        onRefresh();
-        navigation.setParams({ eventUpdated: false }); 
-      }
-    });
-  
-    return unsubscribe;
-  }, [navigation, route.params?.eventUpdated]);
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+        }, [])
+    );
   
 
   const onRefresh = async () => {

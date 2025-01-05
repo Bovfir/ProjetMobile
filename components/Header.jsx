@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { stylesHeader } from "../styles/stylesHeader";
 
-export function Header({ title, subTitle, backButton, notificationButton, navigation, titleSize, subTitleSize, distanceTop }) {
+export default function Header({ title, subTitle, backButton, notificationButton, navigation, titleSize, subTitleSize, distanceTop }) {
     return (
         <View style={[stylesHeader.container, distanceTop && { marginTop: distanceTop }]}>
             

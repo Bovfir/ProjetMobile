@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker'; 
 
-const PickImage = async ({ onSelectedImage, type = 'event' }) => {
+export const PickImage = async ({ onSelectedImage, type = 'event' }) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
@@ -21,5 +21,3 @@ const PickImage = async ({ onSelectedImage, type = 'event' }) => {
         onSelectedImage(result.assets[0].uri); 
     }
 };
-
-export default PickImage;

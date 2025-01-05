@@ -5,13 +5,13 @@ import { MaterialCommunityIcons, SimpleLineIcons, Entypo, AntDesign, Ionicons } 
 import { Button } from '@rneui/themed';
 import IconComponents from '../utils/IconComponents';
 import { useNavigation } from '@react-navigation/native';
-import { unFollowEvent as APIUnFollowEvent, deleteEvent } from "../API/index";
+import { unFollowEvent as APIUnFollowEvent, deleteEvent,setFavorite } from "../API/index";
 import { URLImage } from "../API/APIUrl";
 import { showToast } from '../utils/utils';
 import { stylesButtonInvitation } from "../styles/stylesButtonInvitation";
 import { createInvitation,checkEmails,checkInvitation } from '../API/index';
 
-export default function CardEventWithOptions({ event, titleButton, style, type, onRefresh, index, fetchData }) {
+export default function CardEventWithOptions({ event,isFavorite,isFollow, titleButton, style, type, onRefresh, index, fetchData,toggleFavoriteForEvent }) {
     const navigation = useNavigation();
     const IconComponent = IconComponents[event.icon_component_name] || IconComponents.MaterialIcons;
     const [modalVisible, setModalVisible] = useState(false);
@@ -26,6 +26,16 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
         };
         fetchData();
     }, []);
+
+    const handleFavorite = async (id) => {
+        try {
+            await setFavorite({event_id: id});
+        } catch (error) {
+            showToast('error','Favorite Error','An error occurred while adding favorites.');
+        } finally {
+            toggleFavoriteForEvent(id);
+        }
+    }
 
     const handlePress = async () => {
         if (type === "subscribed") {
@@ -129,7 +139,15 @@ export default function CardEventWithOptions({ event, titleButton, style, type, 
                 <Card style={style.iconCardLeft}>
                     <IconComponent name={event.icon_name} size={27} color="#FFFFFF" />
                 </Card>
-                <IconButton size={27} iconColor="#4B0082" style={style.iconCardRight} icon="heart" />
+                {isFollow && (
+                    <IconButton
+                    size={23}
+                    iconColor='#4B0082'
+                    style={style.iconCardRight}
+                    icon={isFavorite ? 'heart' : 'heart-outline'}
+                    onPress={() => handleFavorite(event.id)}
+                />
+                )}
                 <Card.Content style={style.cardContent}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Text style={style.cardContentTitle}>{event.title}</Text>

@@ -6,7 +6,7 @@ import { URLImage } from "../API/APIUrl";
 import { showToast } from "../utils/utils";
 
 
-export function Invitation({item}) {
+export default function Invitation({item}) {
 
     const handleDecline = async ()=>{
       try {

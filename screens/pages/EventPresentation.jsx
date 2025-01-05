@@ -14,7 +14,7 @@ import { unFollowEvent as APIUnFollowEvent } from "../../API/index";
 import { eventAccepted as APIEventAccepted } from "../../API/index";
 import { getCurrentUser as APIGetCurrentUser} from "../../API/index";
 import { stylesEventPresentation } from "../../styles/stylesEventPresentation";
-import { Header } from "../../components/Header";
+import Header from "../../components/Header";
 import IconComponents from '../../utils/IconComponents';
 import { URLImage } from "../../API/APIUrl";
 import { formatDateToReadable, formatTimeRange } from "../../utils/utils";

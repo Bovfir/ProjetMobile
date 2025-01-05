@@ -1,8 +1,8 @@
 import React,{useContext} from "react"
 import {  View, TextInput, Text} from "react-native"
-import { Header } from "../../components/Header"
-import {LoginButton} from "../../components/LoginButton"
-import { RegisterButton } from "../../components/RegisterButton"
+import Header from "../../components/Header"
+import LoginButton from "../../components/LoginButton"
+import  RegisterButton  from "../../components/RegisterButton"
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {stylesLogin} from "../../styles/stylesLogin"
