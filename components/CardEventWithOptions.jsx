@@ -11,7 +11,7 @@ import { showToast } from '../utils/utils';
 import { stylesButtonInvitation } from "../styles/stylesButtonInvitation";
 import { createInvitation,checkEmails,checkInvitation } from '../API/index';
 
-export default function CardEventWithOptions({ event,isFavorite,isFollow, titleButton, style, type, onRefresh, index, fetchData,toggleFavoriteForEvent }) {
+export default function CardEventWithOptions({ event,isFavorite,isFollow, titleButton, style, type, onRefresh, index, fetchData,fetchSingleEvent }) {
     const navigation = useNavigation();
     const IconComponent = IconComponents[event.icon_component_name] || IconComponents.MaterialIcons;
     const [modalVisible, setModalVisible] = useState(false);
@@ -33,7 +33,7 @@ export default function CardEventWithOptions({ event,isFavorite,isFollow, titleB
         } catch (error) {
             showToast('error','Favorite Error','An error occurred while adding favorites.');
         } finally {
-            toggleFavoriteForEvent(id);
+            fetchSingleEvent(id);
         }
     }
 
