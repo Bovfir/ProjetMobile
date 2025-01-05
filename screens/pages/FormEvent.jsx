@@ -9,7 +9,7 @@ import TitleFormField from '../../components/TitleFormField';
 import CardCategoryForm from '../../components/CardCategoryForm';
 import DateTimeSelector from '../../components/DateTimeSelector';
 import TextInputForm from '../../components/TextInputForm'
-import { Header } from '../../components/Header';
+import Header from '../../components/Header';
 import InvitationInput from '../../components/InvitationInput';
 import HelperTextField from "../../components/HelperTextField";
 import { showToast } from '../../utils/utils';
@@ -33,7 +33,7 @@ export default function FormEvent() {
     const {categories, loading} = useSelector((state) => state.event);
     
     const route = useRoute();
-    const {event,eventID,type, eventUpdated} = route.params || {};
+    const {event,eventID,type} = route.params || {};
 
     const navigation = useNavigation();
 
@@ -131,7 +131,7 @@ export default function FormEvent() {
                 showToast('success', 'Event created successfully', 'Your event is now available.');
             }
 
-            navigation.navigate('MyEventCreated',{eventUpdated: true});
+            navigation.navigate('MyEventCreated');
     } catch (error) {
         if(error.status === 400){
             showToast('error',`Error : ${error.message}`,'Please upload an another value.');

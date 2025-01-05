@@ -1,15 +1,25 @@
 import { View, Text } from 'react-native';
 import { Card, IconButton } from 'react-native-paper';
 import { MaterialIcons, SimpleLineIcons, Feather } from '@expo/vector-icons';
-import {formatDateToDayMonth} from '../utils/utils';
+import {formatDateToDayMonth, showToast} from '../utils/utils';
+import {setFavorite} from '../API/index';
 import { useNavigation } from '@react-navigation/native';
 import {URLImage} from "../API/APIUrl";
-
 import IconComponents from '../utils/IconComponents';
 
-export const CardEvent = ({card, nbSubscribed,ratio, isSelected, toggleSelection,style}) => {
+export default function CardEvent ({card,isFavorite,isFollow, nbSubscribed,ratio,fetchSingleEvent,style}){
     const navigation = useNavigation();
     const IconComponent = IconComponents[card.icon_component_name] || IconComponents.MaterialIcons;
+
+    const handleFavorite = async (id) => {
+        try {
+            await setFavorite({event_id: id});
+        } catch (error) {
+            showToast('error','Favorite Error','An error occurred while adding favorites.');
+        } finally {
+            fetchSingleEvent(id);
+        }
+    }
 
     return (
         <Card key={card.id} style={style.cardStyle} onPress={() => navigation.navigate('EventPresentation',{eventID: card.id})}>
@@ -17,13 +27,15 @@ export const CardEvent = ({card, nbSubscribed,ratio, isSelected, toggleSelection
             <Card style={style.iconCardLeft}>
                 <IconComponent name={card.icon_name} size={18} color="#FFFFFF" />
             </Card>
-            <IconButton
-                size={23}
-                iconColor='#4B0082'
-                style={style.iconCardRight}
-                icon={isSelected ? 'heart' : 'heart-outline'}
-                onPress={() => toggleSelection(card.id)}
-            />
+            {isFollow && (
+                    <IconButton
+                    size={23}
+                    iconColor='#4B0082'
+                    style={style.iconCardRight}
+                    icon={isFavorite ? 'heart' : 'heart-outline'}
+                    onPress={() => handleFavorite(card.id)}
+                />
+            )}
             <Card style={style.cardDateBottom}>
                 <Text style={style.cardDateText}>{formatDateToDayMonth(card.event_start)}</Text>
             </Card>

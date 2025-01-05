@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Pressable, Image } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { URLImage } from '../API/APIUrl'; 
-import PickImage from '../utils/PickImage'; 
+import { PickImage } from '../utils/PickImage'; 
 
-const EventImageSelector = ({ event, selectedImage, setSelectedImage, setFieldValue, styles }) => {
+export default function EventImageSelector ({ event, selectedImage, setSelectedImage, setFieldValue, styles }){
   return (
     <View style={styles.containerCenterImage}>
       <View style={styles.viewImage}>
@@ -30,5 +30,3 @@ const EventImageSelector = ({ event, selectedImage, setSelectedImage, setFieldVa
     </View>
   );
 };
-
-export default EventImageSelector;

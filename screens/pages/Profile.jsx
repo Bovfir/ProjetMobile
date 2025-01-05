@@ -1,11 +1,11 @@
-import { Text, View,TouchableOpacity,TouchableWithoutFeedback, Animated, Alert, Vibration} from 'react-native';
-import {stylesExplore} from '../../styles/stylesExplore'
+import { Text, View, TouchableOpacity, TouchableWithoutFeedback, Animated, Alert, Vibration } from 'react-native';
+import { stylesExplore } from '../../styles/stylesExplore'
 import { Feather, MaterialCommunityIcons,Ionicons } from '@expo/vector-icons';
-import { Header } from '../../components/Header';
+import Header from '../../components/Header';
 import { useNavigation,useIsFocused  } from '@react-navigation/native';
 import { useContext, useEffect, useState } from 'react';
 import * as API from '../../API/index';
-import {Button,Card} from "react-native-paper";
+import { Button, Card } from "react-native-paper";
 import { AuthContext } from '../../utils/AuthContext';
 import { URLImage } from '../../API/APIUrl';
 import { showToast } from '../../utils/utils';
@@ -18,7 +18,6 @@ export default function Profile(){
     const isFocused = useIsFocused();
     const navigation = useNavigation();
     const [slideAnim] = useState(new Animated.Value(300));
-
 
     const { logout } = useContext(AuthContext);
     const handleLogout = async () => {
